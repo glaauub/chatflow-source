@@ -1,0 +1,33 @@
+# Dedicated Windows build — produces the distributable .zip artifact.
+# Skips the GUI/AI smoke tests from build-release.yml because those require
+# an interactive display + a local model download that a headless CI runner
+# cannot provide. The full release workflow (build-release.yml) is still used
+# for manual, machine-validated releases.
+name: build-windows-pkg
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+jobs:
+  build-windows:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt pyinstaller==6.22.2
+      - name: Build native application
+        run: python -m PyInstaller chatflow.spec --noconfirm
+      - name: Package Windows
+        shell: pwsh
+        run: |
+          Copy-Item RELEASE_GUIDE.md dist/ChatFLOW/
+          Copy-Item launchers/ChatFLOW-browser.bat dist/ChatFLOW/
+          Compress-Archive -Path dist/ChatFLOW -DestinationPath dist/ChatFLOW-Windows-x64-v2.1.5.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ChatFLOW-Windows-x64-v2.1.5
+          path: dist/ChatFLOW-Windows-x64-v2.1.5.zip
+          if-no-files-found: error
