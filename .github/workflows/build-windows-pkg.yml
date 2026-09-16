@@ -20,6 +20,25 @@ jobs:
           python-version: '3.12'
       - name: Install dependencies
         run: python -m pip install -r requirements.txt pyinstaller==6.22.2
+      - name: Bundle portable Git (MinGit) for self-contained deploy
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $url = "https://github.com/git-for-windows/git/releases/download/v2.55.0.windows.5/MinGit-2.55.0.5-64-bit.zip"
+          Write-Host "Downloading MinGit from $url"
+          Invoke-WebRequest -Uri $url -OutFile MinGit.zip
+          Expand-Archive -Path MinGit.zip -DestinationPath PortableGit_tmp -Force
+          # MinGit 压缩包根目录直接是 cmd/ bin/ 等；若解压出顶层子目录则上移一层
+          $inner = Get-ChildItem PortableGit_tmp
+          if ($inner.Count -eq 1 -and $inner[0].PSIsContainer) {
+              Move-Item "$($inner[0].FullName)/*" PortableGit -Force
+              Remove-Item PortableGit_tmp -Recurse -Force
+          } else {
+              Move-Item PortableGit_tmp PortableGit -Force
+          }
+          Remove-Item MinGit.zip -Force
+          if (-not (Test-Path PortableGit/cmd/git.exe)) { Write-Error "MinGit git.exe 未找到，解压失败" }
+          Write-Host "MinGit ready: $((Get-Item PortableGit/cmd/git.exe).FullName)"
       - name: Build native application
         run: python -m PyInstaller chatflow.spec --noconfirm
       - name: Package Windows

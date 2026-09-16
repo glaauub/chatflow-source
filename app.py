@@ -3062,16 +3062,86 @@ def generate():
 
 # ---------------- 自动部署 ----------------
 
+def _discover_git():
+    """定位可用的 git 可执行文件，且不依赖调用方进程的 PATH。
+
+    背景（Windows 特有坑）：打包后的 ChatFLOW.exe 直接
+    subprocess.run(["git", ...]) 时，Windows 的 CreateProcess 只会在【父进程
+    （ChatFLOW.exe）启动时的 PATH】里查找 "git"。若系统没装 Git for Windows、
+    也没随包捆绑便携 Git，就会抛 FileNotFoundError [WinError 2]（系统找不到指定的文件）。
+    干净的 Windows 不像 macOS/Linux 预装 Git，所以这个错在任意未装 Git 的 Win 电脑上 100% 复现。
+
+    解决：部署功能【自带便携 Git】，并在调用前用【绝对路径】拉起 git（绝对路径不走
+    PATH 查找），同时把 git 所在目录补进子进程 PATH（供 git 自身拉起内部 helper/ssh）。
+
+    查找顺序：
+      1) 随包捆绑的便携 Git（onedir 在 exe 同目录 / _internal；onefile 在 _MEIPASS）
+      2) 当前 PATH 中的 git（shutil.which）
+      3) Git for Windows 常见安装路径
+    返回 git.exe 绝对路径；都找不到返回 None。
+    """
+    import shutil as _shutil
+    candidates = []
+    # 1) 随包捆绑的便携 Git
+    try:
+        _base = getattr(sys, '_MEIPASS', None) or os.path.dirname(os.path.abspath(sys.executable))
+    except Exception:
+        _base = os.path.dirname(os.path.abspath(sys.executable))
+    for _rel in ('PortableGit/cmd/git.exe', 'PortableGit/bin/git.exe',
+                 '_internal/PortableGit/cmd/git.exe', '_internal/PortableGit/bin/git.exe'):
+        candidates.append(os.path.join(_base, _rel))
+    # 2) 当前 PATH
+    _gw = _shutil.which('git')
+    if _gw:
+        candidates.append(_gw)
+    # 3) Git for Windows 常见安装路径
+    for _bd in (os.environ.get('LOCALAPPDATA', ''), r'C:\Program Files', r'C:\Program Files (x86)'):
+        if not _bd or not os.path.isdir(_bd):
+            continue
+        for _sub in ('Git/cmd/git.exe', 'Git/bin/git.exe', 'Git/mingw64/bin/git.exe',
+                    'Programs/Git/cmd/git.exe'):
+            candidates.append(os.path.join(_bd, _sub))
+    _seen = set()
+    for _c in candidates:
+        _cp = os.path.abspath(_c)
+        if _cp in _seen:
+            continue
+        _seen.add(_cp)
+        if os.path.isfile(_cp):
+            return _cp
+    return None
+
+
 def run_git(site_dir, *args, timeout=120, auth_token=''):
-    """Token only travels in the child environment, never in URLs, arguments or logs."""
+    """Token only travels in the child environment, never in URLs, arguments or logs.
+
+    git 可执行文件通过 _discover_git() 用【绝对路径】拉起，彻底规避 Windows
+    CreateProcess 只在父进程启动 PATH 中查找 "git" 的坑；并把 git 所在目录
+    （及 mingw64/bin、bin）补进子进程 PATH，供 git 内部 helper/ssh 解析使用。
+    若完全找不到 git，抛出带中文指引的清晰错误，而不是直接抛生硬的 FileNotFoundError。
+    """
     import base64
+    git_bin = _discover_git()
+    if not git_bin:
+        raise RuntimeError(
+            '本机未找到 Git 可执行文件（git.exe）。ChatFLOW 的「一键部署」依赖 Git，'
+            '而当前系统 PATH 中没有，也未按预期捆绑便携 Git。'
+            '请在 Windows 上安装 Git for Windows（https://git-scm.com/download/win）后重试，'
+            '或使用随包自带的启动方式打开本软件。')
     env = os.environ.copy()
     env['GIT_TERMINAL_PROMPT'] = '0'
+    # 把 git 所在目录（及 mingw64/bin、bin）补进子进程 PATH，
+    # 否则 git 拉起内部 helper（ssh / credential 等）会找不到依赖。
+    _git_dir = os.path.dirname(git_bin)
+    _git_root = os.path.dirname(_git_dir)
+    for _p in (_git_dir, os.path.join(_git_root, 'bin'), os.path.join(_git_root, 'mingw64', 'bin')):
+        if os.path.isdir(_p) and _p not in env.get('PATH', '').split(os.pathsep):
+            env['PATH'] = _p + os.pathsep + env.get('PATH', '')
     if auth_token:
         credential = base64.b64encode(('x-access-token:' + auth_token).encode()).decode()
         env.update(GIT_CONFIG_COUNT='1', GIT_CONFIG_KEY_0='http.https://github.com/.extraheader',
                    GIT_CONFIG_VALUE_0='AUTHORIZATION: basic ' + credential)
-    return subprocess.run(['git', '-c', 'http.sslVerify=true'] + list(args), cwd=site_dir,
+    return subprocess.run([git_bin, '-c', 'http.sslVerify=true'] + list(args), cwd=site_dir,
                           capture_output=True, text=True, timeout=timeout, env=env)
 
 
