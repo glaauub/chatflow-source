@@ -3078,15 +3078,83 @@ def run_git(site_dir, *args, timeout=120, auth_token=''):
 def _gh_api(url, token, method='GET', payload=None, timeout=30):
     """调用 GitHub API，返回 (ok, data_or_error_msg)。
 
-    稳健性修复（修复「部署出错：IncompleteRead」）：
-    - 显式捕获 http.client.IncompleteRead / HTTPException——旧代码只捕获
-      HTTPError/URLError，IncompleteRead 会漏网并直接炸成部署错误。
-    - 对「响应被截断 / 网络抖动 / 限流(429/5xx)」自动重试。
-    - 走系统代理失败时自动回退直连，绕过会截断 GitHub API 响应的代理
-      （IncompleteRead 的常见成因：代理转发到一半就把连接断了）。
-    - 加 Connection: close 禁用 keep-alive，规避代理复用连接时的半包截断。
+    稳健性（彻底修复「部署出错：IncompleteRead」——代理把响应截断到一半）：
+    - 优先用 curl 子进程：curl 自带 --retry/--retry-all-errors，对「连接被代理
+      截断的半包」会自动重传，比 Python urllib 抗代理得多（urllib 一旦读到
+      Content-Length 与实际字节不符就直接抛 IncompleteRead，且不会自动重传）。
+    - 多次重试 + 退避；加 Connection: close 禁 keep-alive 规避半包截断。
+    - curl 不可用时回退 urllib（同样捕获 IncompleteRead/HTTPException 并重试）。
+    - 错误以 'HTTP <code>: <msg>' 文本返回，调用方仍可靠 '404'/'409' 等子串判断。
     """
-    import time, http.client
+    import subprocess, tempfile, os, json, time, http.client
+
+    # —— 路径 1：curl（首选，抗代理截断）——
+    try:
+        subprocess.run(['curl', '--version'], capture_output=True, timeout=10)
+        use_curl = True
+    except Exception:
+        use_curl = False
+
+    if use_curl:
+        cmd = [
+            'curl', '-sS', '-L',
+            '--retry', '6', '--retry-all-errors', '--retry-delay', '1', '--retry-max-time', '180',
+            '--connect-timeout', '20', '--max-time', str(timeout + 120),
+            '-H', 'Authorization: token %s' % token,
+            '-H', 'Accept: application/vnd.github+json',
+            '-H', 'Connection: close',
+            '-X', method,
+            '-w', '\n%{http_code}',
+            url,
+        ]
+        tf = None
+        if payload is not None:
+            data = json.dumps(payload)
+            tf = tempfile.NamedTemporaryFile('w', suffix='.json', delete=False, encoding='utf-8')
+            tf.write(data)
+            tf.close()
+            cmd += ['-H', 'Content-Type: application/json', '--data-binary', '@' + tf.name]
+        last_err = '网络错误'
+        for attempt in range(4):
+            try:
+                r = subprocess.run(cmd, capture_output=True, timeout=timeout + 200, env=dict(os.environ))
+                raw = r.stdout.decode('utf-8', 'ignore')
+                body, _, code = raw.rpartition('\n')
+                code = code.strip()
+                if r.returncode != 0:
+                    last_err = 'curl 失败(%s): %s' % (r.returncode, r.stderr.decode('utf-8', 'ignore')[:200])
+                elif not code.isdigit():
+                    last_err = '无法解析 HTTP 状态码'
+                elif 200 <= int(code) < 300:
+                    try:
+                        return True, (json.loads(body) if body.strip() else {})
+                    except Exception:
+                        return True, body
+                else:
+                    msg = ''
+                    try:
+                        j = json.loads(body) if body.strip() else {}
+                        msg = j.get('message', body[:200])
+                    except Exception:
+                        msg = body[:200]
+                    if code in ('429', '500', '502', '503', '504'):
+                        last_err = 'HTTP %s: %s' % (code, msg)  # 可重试
+                    else:
+                        return False, 'HTTP %s: %s' % (code, msg)
+            except subprocess.TimeoutExpired:
+                last_err = '网络超时'
+            except Exception as e:
+                last_err = str(e)
+            if attempt < 3:
+                time.sleep(min(1.0 * (attempt + 1), 5))
+        if tf:
+            try:
+                os.unlink(tf.name)
+            except Exception:
+                pass
+        return False, last_err
+
+    # —— 路径 2：urllib 兜底（curl 不可用时的兼容路径）——
     data = json.dumps(payload).encode() if payload is not None else None
     req = Request(url, data=data, method=method)
     req.add_header('Authorization', 'token %s' % token)
@@ -3094,7 +3162,6 @@ def _gh_api(url, token, method='GET', payload=None, timeout=30):
     req.add_header('Connection', 'close')
     if data is not None:
         req.add_header('Content-Type', 'application/json')
-    # None=默认 opener（沿用系统代理）；备选=强制直连（绕过截断响应的代理）
     openers = [None, urllib.request.build_opener(urllib.request.ProxyHandler({}))]
     last_err = '网络错误'
     for attempt in range(3):
@@ -3108,7 +3175,7 @@ def _gh_api(url, token, method='GET', payload=None, timeout=30):
                 body = e.read().decode('utf-8', 'ignore')[:300]
                 if e.code in (429, 500, 502, 503, 504):
                     last_err = 'HTTP %s: %s' % (e.code, body)
-                    break  # 换直连重试
+                    break
                 return False, 'HTTP %s: %s' % (e.code, body)
             except (URLError, http.client.IncompleteRead, http.client.HTTPException) as e:
                 last_err = '网络错误: %s' % (getattr(e, 'reason', None) or e)
@@ -3159,18 +3226,32 @@ def _validate_github_creds(username, token):
 
 
 def ensure_github_repo(user, token, repo):
-    """确保 GitHub 仓库存在，不存在则自动创建（个人仓库）。返回 (ok, msg)"""
+    """确保 GitHub 仓库存在，不存在则自动创建（个人仓库）。
+
+    返回 (ok, msg, fatal)：
+    - fatal=True  → 硬性错误（Token 无效/无权限），必须中止部署并提示用户。
+    - fatal=False → 只是网络抖动探测不到（代理截断等）；不应阻塞部署，
+      直接交给后面的 git push 去上传（git 自带稳健传输，会自行鉴权）。
+    """
     ok, data = _gh_api('https://api.github.com/repos/%s/%s' % (user, repo), token)
     if ok:
-        return True, '仓库已存在'
-    if isinstance(data, str) and '404' in data:
+        return True, '仓库已存在', False
+    msg = str(data)
+    if '401' in msg or '403' in msg:
+        return False, 'GitHub Token 无效或无权限（%s）' % msg[:120], True
+    if '404' in msg:
         ok2, data2 = _gh_api(
             'https://api.github.com/user/repos', token, method='POST',
             payload={'name': repo, 'private': False, 'description': '外贸网站'})
         if ok2:
-            return True, '仓库不存在，已自动创建'
-        return False, '自动创建仓库失败（请确认 Token 有创建仓库权限）：' + str(data2)[:200]
-    return False, '检查仓库失败：' + str(data)[:200]
+            return True, '仓库不存在，已自动创建', False
+        m2 = str(data2)
+        if '401' in m2 or '403' in m2:
+            return False, 'Token 无创建仓库权限（%s）' % m2[:120], True
+        # 创建失败但原因不明（多为网络）→ 不阻塞，git push 仍可能成功
+        return True, '仓库探测失败（网络），将直接尝试推送', False
+    # 其他网络错误 → 不阻塞部署
+    return True, '仓库探测失败（网络），将直接尝试推送', False
 
 
 def enable_github_pages(user, token, repo):
@@ -3217,15 +3298,20 @@ def deploy():
 
     try:
         print('[deploy] repo=%r user=%r domain=%r' % (repo, user, domain), flush=True)
-        repo_ok, repo_msg = ensure_github_repo(user, token, repo)
-        if not repo_ok:
+        repo_ok, repo_msg, repo_fatal = ensure_github_repo(user, token, repo)
+        if not repo_ok and repo_fatal:
             hint = ''
             if '网络' in repo_msg:
                 hint = '（无法连接 GitHub：部署上线需要能访问 github.com，请确认本机已联网并可访问 GitHub，必要时使用科学上网工具后再试。）'
             return jsonify({'error': repo_msg + hint}), 500
-        # 仓库已存在 = 覆盖更新；新仓库 = 首次创建（无需提醒）
-        overwrite = (repo_msg == '仓库已存在')
-        print('[deploy] ensure repo: %s' % repo_msg, flush=True)
+        # 非致命（网络抖动探测不到仓库）：仍继续，交给 git push 上传
+        if not repo_ok:
+            print('[deploy] 仓库探测未确认（%s），继续尝试 git push' % repo_msg, flush=True)
+        # 用 git 自身探测远端 main 是否存在（git 传输比 API 抗代理）：
+        # 存在=覆盖更新；不存在=首次创建。不依赖 GitHub API 是否可达。
+        probe = run_git(OUTPUT_DIR, 'ls-remote', '--heads', 'origin', 'main', auth_token=token)
+        overwrite = bool(probe.stdout.strip())
+        print('[deploy] ensure repo: %s (git ls-remote overwrite=%s)' % (repo_msg, overwrite), flush=True)
 
         # 自定义域名 → 写 CNAME 文件进仓库，GitHub Pages 会自动按它绑定域名；
         # 没填域名 → 清掉历史 CNAME，回退到默认的 *.github.io 地址
@@ -3246,10 +3332,8 @@ def deploy():
         git('branch', '-M', 'main')
         # Keep the prior commit history. Refuse remote races instead of force-pushing.
         if overwrite:
-            probe = git('ls-remote', '--heads', 'origin', 'main')
-            if probe.stdout.strip():
-                git('fetch', '--depth=1', 'origin', 'main')
-                git('update-ref', 'HEAD', 'FETCH_HEAD')
+            git('fetch', '--depth=1', 'origin', 'main')
+            git('update-ref', 'HEAD', 'FETCH_HEAD')
         git('add', '-A')
         git('-c', 'user.name=ChatFLOW', '-c', 'user.email=export@site.local',
             'commit', '--allow-empty', '-m', 'Publish website with ChatFLOW '+APP_VERSION)
