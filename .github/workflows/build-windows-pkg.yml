@@ -8,6 +8,8 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
+permissions:
+  contents: write
 jobs:
   build-windows:
     runs-on: windows-2022
@@ -31,3 +33,10 @@ jobs:
           name: ChatFLOW-Windows-x64-v2.1.5
           path: dist/ChatFLOW-Windows-x64-v2.1.5.zip
           if-no-files-found: error
+      - name: Publish public release (direct download link)
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v2.1.5-windows
+          name: ChatFLOW 2.1.5 Windows (48 products)
+          files: dist/ChatFLOW-Windows-x64-v2.1.5.zip
+          fail_on_unmatched_files: true
