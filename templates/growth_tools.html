@@ -1,0 +1,117 @@
+<!-- Growth tools and source-preserving product collection. -->
+<div class="panel-sec row g-4 mb-4" id="sec-growth">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header"><i class="bi bi-tools me-2 text-primary"></i>推广工具箱：白帽、灰帽、黑帽</div>
+      <div class="card-body" id="growthTools">
+        <p class="text-muted small">设置保存后，重新生成并发布网站才会生效。这里改变的是网页内容和链接，不代表搜索排名一定上涨。</p>
+        <div class="row g-3">
+          <div class="col-lg-4">
+            <div class="border rounded p-3 h-100">
+              <h5 class="fs-6">白帽：正文自动内链</h5>
+              <p class="small text-muted">让客户点击正文里的词，就能去看相关产品。每页最多加 3 处，已有链接不重复加。<br><b>怎么用：</b>勾选开关，在下面一行写一个规则。竖线左边是正文里要找的词，右边是要打开的网址。保存后重新生成并发布。</p>
+              <div class="form-check mb-2"><input class="form-check-input" type="checkbox" id="growthInternalEnabled"><label class="form-check-label" for="growthInternalEnabled">启用自动内链</label></div>
+              <label class="form-label small" for="growthInternalLines">每行：关键词 | 链接</label>
+              <textarea class="form-control" id="growthInternalLines" rows="7" placeholder="产品目录 | index.html#products"></textarea>
+              <div class="form-text">上面的例子表示：正文里的“产品目录”变成能点击的链接，点进去看产品。正文没有这个词就不会添加。</div>
+            </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="border rounded p-3 h-100">
+              <h5 class="fs-6">黑帽试验：隐藏关键词</h5>
+              <p class="small text-muted">把你填的词写入隐藏区域，访客看不到。搜索引擎可能把这种做法当作作弊，减少展示。</p>
+              <div class="form-check mb-2"><input class="form-check-input" type="checkbox" id="growthKeywordsEnabled"><label class="form-check-label" for="growthKeywordsEnabled">启用隐藏关键词</label></div>
+              <label class="form-label small" for="growthKeywordLines">怎么填：每行写一个产品相关词，再勾选、保存</label>
+              <textarea class="form-control" id="growthKeywordLines" rows="7" placeholder="输入要试验的关键词"></textarea>
+            </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="border rounded p-3 h-100">
+              <h5 class="fs-6">黑帽试验：隐藏链接</h5>
+              <p class="small text-muted">把链接写入隐藏区域。为操纵排名而隐藏链接可能导致排名下降；已有的链接板块不在这里编辑。</p>
+              <div class="form-check mb-2"><input class="form-check-input" type="checkbox" id="growthLinksEnabled"><label class="form-check-label" for="growthLinksEnabled">启用隐藏链接</label></div>
+              <label class="form-label small" for="growthLinkLines">每行：链接名字 | 完整网址 | 链接类型</label>
+              <textarea class="form-control" id="growthLinkLines" rows="7" placeholder="合作资料 | https://example.com | nofollow"></textarea>
+              <div class="form-text">最后一项：follow 表示普通链接；nofollow 表示不为对方背书；sponsored 表示付费合作。三项之间用英文竖线 | 分开。填好后勾选开关、保存，再生成并发布。</div>
+            </div>
+          </div>
+        </div>
+        <div class="d-flex gap-2 align-items-center flex-wrap mt-3"><button class="btn btn-primary" type="button" id="growthSave">保存推广设置</button><span class="small" id="growthMessage" aria-live="polite"></span></div>
+        <hr>
+        <h5 class="fs-6">灰帽试验：按用途批量做产品介绍页</h5>
+        <p class="small text-muted">用现有产品资料按主题生成页面草稿。大量重复、没有新内容的页面可能影响收录。新页面默认不显示，请到「板块与页面」检查内容后再开启。</p>
+        <p class="small"><b>怎么用：</b>① 每行写一个用途，如“酒店用餐椅”；② 点「先看草稿」；③ 满意后点「创建页面草稿」；④ 到「板块与页面」补上这个用途独有的介绍并开启，再生成、发布。它会整理现有产品链接，不会凭空写出专业文章。</p>
+        <div class="row g-3">
+          <div class="col-md-8"><label class="form-label" for="growthTopics">每行一个页面主题</label><textarea class="form-control" id="growthTopics" rows="4" placeholder="酒店用餐椅&#10;户外用餐椅"></textarea></div>
+          <div class="col-md-4"><label class="form-label" for="growthProductIds">使用哪些产品（可不填）</label><input class="form-control" id="growthProductIds" placeholder="产品编号，用英文逗号隔开"><div class="form-text">留空时使用已有产品。填写示例：1,2,3。</div></div>
+        </div>
+        <div class="d-flex gap-2 flex-wrap mt-3"><button type="button" class="btn btn-outline-primary" id="growthLandingPreview">先看草稿</button><button type="button" class="btn btn-primary" id="growthLandingCreate">创建页面草稿</button></div>
+        <div class="mt-3 small" id="growthLandingResult" aria-live="polite"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="panel-sec row g-4 mb-4" id="sec-collection">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header"><i class="bi bi-box-arrow-in-down me-2 text-primary"></i>商品采集与 AI 翻译</div>
+      <div class="card-body" id="collectionCenter">
+        <p class="small text-muted">先采集成草稿，检查后再加入产品。公开页面能读到多少就采集多少；需要登录、验证码或只在网页加载后出现的资料，可能采不到。不会把缺失的 SKU、价格、库存编造出来。</p>
+        <div class="row g-3">
+          <div class="col-lg-6">
+            <label class="form-label fw-semibold" for="collectionUrls">粘贴商品链接</label>
+            <textarea class="form-control" id="collectionUrls" rows="7" placeholder="每行一个商品链接，一次最多 20 个"></textarea>
+            <div class="d-flex gap-2 align-items-center flex-wrap mt-2"><button type="button" class="btn btn-primary" id="collectionCollect">开始采集</button><button type="button" class="btn btn-outline-secondary" id="collectionStop" disabled>停止后续采集</button><span class="small" id="collectionProgress" aria-live="polite"></span></div>
+            <div class="form-check mt-3"><input class="form-check-input" type="checkbox" id="collectionAutoTranslate"><label class="form-check-label" for="collectionAutoTranslate">采集后自动翻译成所选语言</label></div>
+            <div class="form-text">商品链接和 HTML 文件导入都适用。先在下方选择目标语言并启动本地 AI；翻译失败时保留原文草稿。</div>
+          </div>
+          <div class="col-lg-6">
+            <div class="border rounded p-3 h-100">
+              <label class="form-label fw-semibold" for="collectionPlatform">按关键词找商品链接</label>
+              <div class="d-flex gap-2 mb-2"><select class="form-select" id="collectionPlatform" aria-label="商品平台" disabled><option>正在读取平台</option></select><input class="form-control" id="collectionQuery" placeholder="输入商品关键词" aria-label="商品关键词"></div>
+              <button type="button" class="btn btn-outline-primary" id="collectionSearch">查找商品链接</button>
+              <div class="form-text" id="collectionPlatformNote">平台选项表示可查找的来源，不代表所有商品都能采集。</div>
+              <hr>
+              <label class="form-label fw-semibold" for="collectionShopUrl">从店铺页找商品链接</label>
+              <input class="form-control mb-2" id="collectionShopUrl" type="url" placeholder="粘贴店铺或商品列表页链接">
+              <div class="d-flex gap-2 align-items-center flex-wrap"><label class="small" for="collectionShopPages">最多读取</label><select class="form-select form-select-sm w-auto" id="collectionShopPages"><option value="1">1 页</option><option value="2">2 页</option><option value="3">3 页</option></select><button type="button" class="btn btn-outline-primary" id="collectionShop">查找店内商品</button></div>
+              <div class="form-text">最多读取 3 个页面，不保证找到整店所有商品。找到的链接还需要再采集。</div>
+            </div>
+          </div>
+        </div>
+        <div id="collectionFoundArea" class="border rounded p-3 mt-3" hidden>
+          <div class="d-flex justify-content-between align-items-center flex-wrap gap-2"><strong>找到的链接</strong><div class="d-flex gap-2"><button type="button" class="btn btn-sm btn-outline-secondary" id="collectionFoundAll">选择前 20 个</button><button type="button" class="btn btn-sm btn-outline-primary" id="collectionFoundUse">把选中链接放到采集框</button></div></div>
+          <p class="small mt-2 mb-2" id="collectionFoundMessage" aria-live="polite"></p>
+          <div id="collectionFoundList" style="max-height:260px;overflow:auto"></div>
+        </div>
+        <div class="d-flex align-items-center gap-2 flex-wrap border rounded p-3 mt-3"><button type="button" class="btn btn-outline-primary" id="collectionSpreadsheet">上传商品表格</button><span class="small text-muted">打开产品管理中已有的 Excel / CSV 模板导入。平台导出的原表需要先整理成系统模板，不能直接保证兼容。</span></div>
+        <details class="border rounded p-3 mt-3">
+          <summary class="fw-semibold">导入保存到电脑的商品网页</summary>
+          <p class="small text-muted mt-2">网页无法直接采集时，可以先用浏览器保存商品网页，再导入 HTML 文件。文件中没有的图片地址和 SKU 仍需补充。HTML 文件最多 5 MB。</p>
+          <label class="form-label small" for="collectionHtmlSource">原商品链接（可选，帮助识别来源和图片地址）</label><input class="form-control mb-2" type="url" id="collectionHtmlSource" placeholder="https://…"><div class="d-flex align-items-center gap-2 flex-wrap"><input class="form-control" style="max-width:420px" type="file" id="collectionHtmlFile" accept=".html,.htm,text/html" aria-label="选择商品 HTML 文件"><button type="button" class="btn btn-outline-primary" id="collectionHtmlImport">读取文件并保存草稿</button></div>
+        </details>
+        <div class="border rounded p-3 mt-3">
+          <div class="d-flex align-items-center justify-content-between flex-wrap gap-2"><strong>采集进度</strong><button type="button" class="btn btn-sm btn-outline-secondary" id="collectionClearLog">清空显示</button></div>
+          <div class="small mt-2" id="collectionLog" aria-live="polite" style="max-height:200px;overflow:auto">还没有开始采集。</div>
+        </div>
+        <hr>
+        <div class="d-flex justify-content-between align-items-center gap-2 flex-wrap mb-3"><h5 class="fs-6 mb-0">采集草稿</h5><button type="button" class="btn btn-sm btn-outline-secondary" id="collectionRefresh">刷新草稿</button></div>
+        <div class="row g-3">
+          <div class="col-lg-5"><div class="list-group" id="collectionDraftList" style="max-height:620px;overflow:auto" aria-label="采集草稿列表">正在读取草稿…</div></div>
+          <div class="col-lg-7">
+            <div class="border rounded p-3">
+              <div class="row g-2 mb-3"><div class="col-md-6"><label class="form-label" for="collectionSourceLanguage">原文语言</label><select class="form-select" id="collectionSourceLanguage" disabled><option value="">自动识别</option></select><div class="form-text">短标题可能识别不准，可在这里指定原文语言。</div></div><div class="col-md-6"><label class="form-label" for="collectionLanguage">要使用的语言</label><select class="form-select" id="collectionLanguage" disabled><option value="">原文（不翻译）</option></select></div><div class="col-12"><div class="small text-muted mb-1">本地 AI 状态</div><div class="small" id="collectionAiState" aria-live="polite">正在检查…</div></div></div>
+              <div class="d-flex gap-2 flex-wrap mb-2"><button type="button" class="btn btn-outline-primary btn-sm" id="collectionAiStart">准备 / 启动本地 AI</button><button type="button" class="btn btn-outline-secondary btn-sm" id="collectionAiPollStop" hidden>停止查看下载进度</button></div>
+              <p class="small"><a href="/api/collection/ai/diagnostics" download>启动失败时，下载 AI 错误记录</a>：用于查看具体原因，不会自动发送给别人。新版 Windows 包自带 AI 所需的微软运行组件，不用因为启动失败就删除模型。</p>
+              <p class="small text-muted">使用本地 Qwen3-4B-Instruct-2507，首次下载约 2.5 GB 的模型及运行引擎，不需要翻译 API 账号。建议 8 GB 以上内存，预留 6 GB 磁盘。准备完成后，翻译在本机进行。SKU 编号、价格、库存和图片对应关系会保留，翻译的是名称、描述和规格文字。本地 AI 生成的是待校对译稿，实测部分语言可能译错材质、颜色，导入和发布前请核对。</p>
+              <div class="progress mb-3" id="collectionAiProgressWrap" hidden style="height:8px"><div class="progress-bar" id="collectionAiProgress" role="progressbar" aria-label="AI 模型准备进度" aria-valuemin="0" aria-valuemax="100" style="width:0%"></div></div>
+              <div id="collectionDraftDetail" class="small mb-3">先从左边选择一个草稿。</div>
+              <div class="d-flex gap-2 flex-wrap"><button type="button" class="btn btn-outline-primary" id="collectionTranslate" disabled>翻译当前草稿</button><button type="button" class="btn btn-primary" id="collectionImport" disabled>把当前草稿加入产品</button></div>
+              <div class="small mt-2" id="collectionDraftMessage" aria-live="polite"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

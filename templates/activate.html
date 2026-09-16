@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>软件激活 - Chatflow工作室建站系统</title>
+<link rel="stylesheet" href="/static/vendor/css/bootstrap.min.css">
+<link rel="stylesheet" href="/static/vendor/css/bootstrap-icons.min.css?v=20260904">
+<style>
+  body {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    background: linear-gradient(135deg, #0f1f38 0%, #1d4e89 55%, #2f6fed 100%);
+    font-family: "PingFang SC", "Microsoft YaHei", -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  .act-card {
+    max-width: 520px;
+    margin: 0 auto;
+    border: none;
+    border-radius: 1rem;
+    box-shadow: 0 20px 50px rgba(8, 20, 45, .35);
+  }
+  .act-brand {
+    width: 64px;
+    height: 64px;
+    border-radius: 1rem;
+    background: linear-gradient(135deg, #1d4e89, #2f6fed);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    margin: 0 auto 0.75rem;
+  }
+  .btn-act {
+    background: linear-gradient(135deg, #1d4e89, #2f6fed);
+    border: none;
+  }
+  .btn-act:hover { background: linear-gradient(135deg, #173d6b, #1d4e89); }
+  .machine-code {
+    font-family: "SF Mono", Consolas, monospace;
+    font-size: .9rem;
+    letter-spacing: .5px;
+    user-select: all;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="card act-card">
+    <div class="card-body p-4 p-md-5">
+      <div class="act-brand"><i class="bi bi-key"></i></div>
+      <h3 class="text-center mb-1 fw-bold">Chatflow工作室建站系统</h3>
+      <p class="text-center text-muted small mb-4">首次使用需要激活，一个激活码只能在这台电脑上使用</p>
+
+      {% if error %}<div class="alert alert-danger py-2"><i class="bi bi-exclamation-triangle me-1"></i>{{ error }}</div>{% endif %}
+
+      <label class="form-label fw-semibold">激活码</label>
+      <div class="input-group input-group-lg mb-2">
+        <span class="input-group-text"><i class="bi bi-patch-check"></i></span>
+        <input id="code" class="form-control text-uppercase" placeholder="例如：CF-XXXX-XXXX-XXXX" autofocus>
+      </div>
+      <div class="form-text mb-3">激活码由卖家提供，格式为一串字母数字。输错也没关系，可以反复输入。</div>
+
+      <button id="btnAct" class="btn btn-act btn-lg w-100 text-white fw-semibold mb-4">
+        <i class="bi bi-unlock me-1"></i>立即激活
+      </button>
+
+      <div class="border-top pt-3">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <div class="text-muted small">这台电脑的机器码（换电脑或激活出问题时，把它发给卖家）</div>
+            <code class="machine-code" id="mid">{{ machine_code }}</code>
+          </div>
+          <button class="btn btn-outline-secondary btn-sm flex-shrink-0 ms-2" id="btnCopy">
+            <i class="bi bi-clipboard"></i> 复制
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  var btn = document.getElementById('btnAct');
+  btn.addEventListener('click', function () {
+    var code = document.getElementById('code').value.trim();
+    if (!code) { alert('请输入激活码'); return; }
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>正在激活...';
+    fetch('/api/activate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code: code })
+    }).then(function (r) { return r.json(); }).then(function (d) {
+      if (d.ok) {
+        btn.innerHTML = '<i class="bi bi-check-circle me-1"></i>激活成功，正在进入...';
+        location.href = '/login';
+      } else {
+        alert(d.msg || '激活失败，请核对激活码');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-unlock me-1"></i>立即激活';
+      }
+    }).catch(function () {
+      alert('网络异常，请重试');
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bi bi-unlock me-1"></i>立即激活';
+    });
+  });
+  document.getElementById('code').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') { btn.click(); }
+  });
+  document.getElementById('btnCopy').addEventListener('click', function () {
+    var t = document.getElementById('mid').textContent;
+    if (navigator.clipboard) { navigator.clipboard.writeText(t); }
+    this.innerHTML = '<i class="bi bi-check2"></i> 已复制';
+    var b = this;
+    setTimeout(function () { b.innerHTML = '<i class="bi bi-clipboard"></i> 复制'; }, 1500);
+  });
+</script>
+</body>
+</html>

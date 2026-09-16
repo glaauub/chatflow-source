@@ -1,0 +1,18 @@
+# ===== 运行时数据库（不入库） =====
+*.db
+*.db-journal
+site_themes
+instance/app.db
+instance/license.json
+instance/*.db
+
+# ===== 构建/输出产物（不入库） =====
+dist/
+build/
+output_site/
+backups/
+__pycache__/
+*.pyc
+.DS_Store
+
+# 保留 instance/license_server.txt（软件授权服务器地址，客户版需要）

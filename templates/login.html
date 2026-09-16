@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>登录 - Chatflow工作室建站系统</title>
+<link rel="stylesheet" href="/static/vendor/css/bootstrap.min.css">
+<link rel="stylesheet" href="/static/vendor/css/bootstrap-icons.min.css?v=20260904">
+<style>
+  body {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    background: linear-gradient(135deg, #0f1f38 0%, #1d4e89 55%, #2f6fed 100%);
+    font-family: "PingFang SC", "Microsoft YaHei", -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  .login-card {
+    max-width: 460px;
+    margin: 0 auto;
+    border: none;
+    border-radius: 1rem;
+    box-shadow: 0 20px 50px rgba(8, 20, 45, .35);
+  }
+  .login-brand {
+    width: 64px;
+    height: 64px;
+    border-radius: 1rem;
+    background: linear-gradient(135deg, #1d4e89, #2f6fed);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    margin: 0 auto 0.75rem;
+  }
+  .btn-login {
+    background: linear-gradient(135deg, #1d4e89, #2f6fed);
+    border: none;
+  }
+  .btn-login:hover { background: linear-gradient(135deg, #173d6b, #1d4e89); }
+  .form-label { font-weight: 500; color: #33465c; }
+  .form-control:focus { border-color: #2f6fed; box-shadow: 0 0 0 .2rem rgba(47,111,237,.15); }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="card login-card">
+    <div class="card-body p-4 p-md-5">
+      <div class="login-brand"><i class="bi bi-boxes"></i></div>
+      <h3 class="text-center mb-1 fw-bold">Chatflow工作室建站系统</h3>
+      <p class="text-center text-muted small mb-4">登录后即可生成并部署外贸网站</p>
+      {% if error %}<div class="alert alert-danger py-2"><i class="bi bi-exclamation-triangle me-1"></i>{{ error }}</div>{% endif %}
+      <form method="post">
+        <div class="mb-3">
+          <label class="form-label">GitHub 用户名</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-person"></i></span>
+            <input name="username" class="form-control" required placeholder="例如：zhangsan" autocomplete="username" autofocus>
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Personal Access Token</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-key"></i></span>
+            <input name="token" type="password" class="form-control" required placeholder="ghp_xxx 或 github_pat_xxx" autocomplete="off">
+          </div>
+        </div>
+        <div class="form-check mb-2"><input class="form-check-input" type="checkbox" id="rememberLogin" name="remember" value="1" checked><label class="form-check-label" for="rememberLogin">记住账号和 Token，下次直接进入</label></div>
+        <p class="small text-muted mb-3">登录信息加密保存在这台电脑。正常关闭或重启不用重填；在后台点击“退出并清除登录”可清除。公用电脑请取消勾选。Token 过期后需要更新。</p>
+        <button class="btn btn-login btn-primary w-100 py-2 fw-semibold"><i class="bi bi-box-arrow-in-right me-1"></i>进入后台</button>
+      </form>
+      <details class="mt-3 small text-muted">
+        <summary><i class="bi bi-question-circle me-1"></i>如何获取 Token？</summary>
+        <ol class="mt-2 ps-3 mb-0">
+          <li>打开 GitHub → 头像 → Settings → Developer settings</li>
+          <li>选择 Fine-grained tokens → Generate new token</li>
+          <li>Repository access 选择 Only select repositories，勾选目标仓库</li>
+          <li>已有仓库：Contents 设为 Read and write；自动配置网站还需 Pages 写权限及相应管理权限。</li><li>新手建议先在 GitHub 创建空仓库，再选择它授权。自动创建仓库需要 Administration 写权限。</li>
+          <li>生成后复制（只显示一次），粘贴到上方输入框</li>
+        </ol>
+      </details>
+    </div>
+  </div>
+</div>
+</body>
+</html>

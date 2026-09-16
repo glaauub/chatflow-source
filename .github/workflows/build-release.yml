@@ -1,0 +1,86 @@
+name: build-release
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-2022
+            asset: ChatFLOW-Windows-x64-v2.1.5
+          - os: macos-13
+            asset: ChatFLOW-macOS-Intel-v2.1.5
+          - os: macos-14
+            asset: ChatFLOW-macOS-AppleSilicon-v2.1.5
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt pyinstaller==6.22.2
+      - name: Test source
+        run: python -m unittest discover -s tests -v
+      - name: Build native application
+        run: python -m PyInstaller chatflow.spec --noconfirm
+      - name: Verify frozen application
+        run: python scripts/smoke_bundle.py
+      - name: Verify actual native window opens and loads
+        timeout-minutes: 3
+        run: python scripts/smoke_window.py
+      - name: Verify frozen local AI with actual model
+        timeout-minutes: 20
+        run: python scripts/smoke_local_ai.py
+      - name: Verify remembered login across six actual GUI launches
+        timeout-minutes: 10
+        run: python scripts/smoke_login.py
+      - name: Package Windows
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Copy-Item RELEASE_GUIDE.md dist/ChatFLOW/
+          Copy-Item launchers/ChatFLOW-browser.bat dist/ChatFLOW/
+          Compress-Archive -Path dist/ChatFLOW -DestinationPath dist/${{ matrix.asset }}.zip
+      - name: Package macOS
+        if: runner.os == 'macOS'
+        run: |
+          mkdir -p dist/dmgroot
+          cp -R dist/ChatFLOW.app dist/dmgroot/
+          cp RELEASE_GUIDE.md dist/dmgroot/
+          cp launchers/ChatFLOW-browser.command dist/dmgroot/
+          cp launchers/Intel-恢复独立窗口.command dist/dmgroot/
+          chmod +x dist/dmgroot/ChatFLOW-browser.command
+          chmod +x dist/dmgroot/Intel-恢复独立窗口.command
+          ln -s /Applications dist/dmgroot/Applications
+          hdiutil create -volname "ChatFLOW 2.1.5" -srcfolder dist/dmgroot -ov -format UDZO dist/${{ matrix.asset }}.dmg
+          hdiutil verify dist/${{ matrix.asset }}.dmg
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.asset }}
+          path: |
+            dist/*.zip
+            dist/*.dmg
+          if-no-files-found: error
+  draft-release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: release-assets
+          merge-multiple: true
+      - name: Checksums
+        run: cd release-assets && sha256sum * > SHA256SUMS.txt
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v2.1.5
+          target_commitish: ${{ github.sha }}
+          name: ChatFLOW 2.1.5
+          draft: true
+          body_path: RELEASE_NOTES.md
+          files: release-assets/*

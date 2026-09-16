@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>伟大作品™️工作室 ChatFLOW 2.1.5 · 管理后台</title>
+<link rel="stylesheet" href="/static/vendor/css/bootstrap.min.css">
+<link rel="stylesheet" href="/static/vendor/css/adminlte.min.css">
+<link rel="stylesheet" href="/static/vendor/css/bootstrap-icons.min.css?v=20260904c">
+<link rel="stylesheet" href="/static/admin.css?v=20260904c">
+</head>
+<body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
+<div class="app-wrapper">
+
+  <!-- ===== 顶部导航栏 ===== -->
+  <nav class="app-header navbar navbar-expand bg-body">
+    <div class="container-fluid">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link" data-lte-toggle="sidebar" href="#" role="button"><i class="bi bi-list"></i></a>
+        </li>
+        <li class="nav-item d-none d-md-block">
+          <a href="/admin" class="nav-link fw-semibold"><i class="bi bi-globe2 me-1 text-primary"></i>伟大作品™️工作室 ChatFLOW 2.1.5</a>
+        </li>
+      </ul>
+      <ul class="navbar-nav ms-auto align-items-center gap-1">
+        <li class="nav-item d-none d-lg-flex align-items-center">
+          <span class="nav-link text-secondary small"><i class="bi bi-person-circle me-1"></i>{{ user }}</span>
+        </li>
+        <li class="nav-item">
+          <a class="btn btn-sm btn-primary" href="javascript:void(0)" onclick="openPreview()" title="预览网站"><i class="bi bi-eye me-1"></i><span class="d-none d-sm-inline">预览网站</span></a>
+        </li>
+        <li class="nav-item">
+          <a class="btn btn-sm btn-success" href="javascript:void(0)" onclick="deployAll()" title="一键生成并上传到 GitHub"><i class="bi bi-rocket-takeoff me-1"></i><span class="d-none d-sm-inline">生成部署</span></a>
+        </li>
+        <li class="nav-item">
+          <form action="/logout" method="post" class="d-inline"><button class="btn btn-sm btn-outline-secondary" type="submit"><i class="bi bi-box-arrow-right me-1"></i><span class="d-none d-sm-inline">退出并清除登录</span></button></form>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ===== 左侧导航栏 ===== -->
+  <aside class="app-sidebar" data-bs-theme="dark">
+    <div class="sidebar-brand">
+      <a href="/admin" class="brand-link">
+        <i class="bi bi-boxes brand-image opacity-75 shadow" style="font-size:1.5rem;"></i>
+        <span class="brand-text fw-light fs-6">伟大作品™️工作室 ChatFLOW 2.1.5</span>
+      </a>
+    </div>
+    <div class="sidebar-wrapper">
+      <nav class="mt-2">
+        <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="menu" data-accordion="false">
+          <li class="nav-header nav-section-title">开始</li>
+          <li class="nav-item">
+            <a href="#sec-stats" class="nav-link"><i class="nav-icon bi bi-speedometer2"></i><p>站点概览</p></a>
+          </li>
+          <li class="nav-header nav-section-title">建站</li>
+          <li class="nav-item">
+            <a href="#sec-template" class="nav-link"><i class="nav-icon bi bi-palette"></i><p>模板与语言</p></a>
+          </li>
+          <li class="nav-item">
+            <a href="#sec-sections" class="nav-link"><i class="nav-icon bi bi-grid-1x2"></i><p>板块与页面</p></a>
+          </li>
+          <li class="nav-header nav-section-title">内容</li>
+          <li class="nav-item">
+            <a href="#sec-product" class="nav-link"><i class="nav-icon bi bi-box-seam"></i><p>产品管理</p></a>
+          </li>
+          <li class="nav-item">
+            <a href="#sec-collection" class="nav-link"><i class="nav-icon bi bi-box-arrow-in-down"></i><p>商品采集与翻译</p></a>
+          </li>
+          <li class="nav-item">
+            <a href="#sec-categories" class="nav-link"><i class="nav-icon bi bi-tags"></i><p>分类管理</p></a>
+          </li>
+          <li class="nav-item">
+            <a href="#sec-company" class="nav-link"><i class="nav-icon bi bi-buildings"></i><p>公司设置</p></a>
+          </li>
+          <li class="nav-item">
+            <a href="#sec-brand" class="nav-link"><i class="nav-icon bi bi-image"></i><p>品牌与素材</p></a>
+          </li>
+          <li class="nav-header nav-section-title">推广</li>
+          <li class="nav-item">
+            <a href="#sec-seo" class="nav-link"><i class="nav-icon bi bi-search"></i><p>SEO 优化</p></a>
+          </li>
+          <li class="nav-item">
+            <a href="#sec-growth" class="nav-link"><i class="nav-icon bi bi-tools"></i><p>推广工具箱</p></a>
+          </li>
+          <li class="nav-item">
+            <a href="#sec-friendlinks" class="nav-link"><i class="nav-icon bi bi-link-45deg"></i><p>友情链接</p></a>
+          </li>
+          <li class="nav-item">
+            <a href="#sec-pay" class="nav-link"><i class="nav-icon bi bi-credit-card"></i><p>支付配置</p></a>
+          </li>
+          <li class="nav-header nav-section-title">系统</li>
+          <li class="nav-item">
+            <a href="#sec-backup" class="nav-link"><i class="nav-icon bi bi-database-down"></i><p>数据备份</p></a>
+          </li>
+          <li class="nav-item">
+            <a href="#sec-deploy" class="nav-link"><i class="nav-icon bi bi-rocket-takeoff"></i><p>网站部署</p></a>
+          </li>
+          <li class="nav-item">
+            <a href="#sec-tutorial" class="nav-link"><i class="nav-icon bi bi-journal-bookmark"></i><p>使用教程</p></a>
+          </li>
+          <li class="nav-item">
+            <a href="#sec-starter" class="nav-link"><i class="nav-icon bi bi-grid-1x2"></i><p>模板与示例</p></a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </aside>
+
+  <!-- ===== 主内容区 ===== -->
+  <main class="app-main">
+    <div class="app-content-header">
+      <div class="container-fluid">
+        <div class="row align-items-center">
+          <div class="col-sm-6"><h3 class="mb-0" id="pageHeaderTitle"><i class="bi bi-speedometer2 me-2 text-primary"></i>站点概览</h3></div>
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-end mb-0">
+              <li class="breadcrumb-item"><a href="/admin">首页</a></li>
+              <li class="breadcrumb-item" id="crumbGroup">开始</li>
+              <li class="breadcrumb-item active" id="crumbPage">站点概览</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="app-content">
+      <div class="container-fluid">
+
+        <!-- ===== 概览统计 ===== -->
+        <div class="panel-sec row g-4 mb-4" id="sec-stats">
+          <div class="col-12">
+            <div class="card">
+              <div class="card-header"><i class="bi bi-speedometer2 me-2 text-primary"></i>站点概览统计</div>
+              <div class="card-body">
+                <div id="statsBox" class="row g-3">
+                  <div class="col-6 col-xl-2">
+                    <div class="stat-card"><div class="stat-num text-primary" id="statProducts">-</div><div class="stat-label">产品数</div></div>
+                  </div>
+                  <div class="col-6 col-xl-2">
+                    <div class="stat-card"><div class="stat-num text-success" id="statVersions">-</div><div class="stat-label">版本数</div></div>
+                  </div>
+                  <div class="col-6 col-xl-2">
+                    <div class="stat-card"><div class="stat-num text-info" id="statDeployCount">-</div><div class="stat-label">部署次数</div></div>
+                  </div>
+                  <div class="col-12 col-xl-4">
+                    <div class="stat-card"><div class="stat-num fs-6 text-body" id="statLastDeploy">-</div><div class="stat-label">最近部署时间</div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== 模板与语言 ===== -->
+        <div class="panel-sec row g-4 mb-4" id="sec-template">
+          <div class="col-12">
+            <div class="card">
+              <div class="card-header"><i class="bi bi-palette me-2 text-primary"></i>网站模板 / 站点语言 / 全站详情页风格</div>
+              <div class="card-body">
+                <div class="row g-4">
+                  <div class="col-lg-7">
+                    <label class="form-label fw-semibold">网站模板（外贸商务风格，共 36 套可选）</label>
+                    <div class="input-group input-group-lg">
+                      <span class="input-group-text"><i class="bi bi-palette2"></i></span>
+                      <select id="templateSelect" class="form-select" aria-label="网站模板选择"></select>
+                    </div>
+                    <div id="templateInfo" class="form-text mt-2"></div>
+                    <div class="form-text mt-1">选择模板后自动保存；点「预览当前模板」可实时查看，一键生成时按所选模板渲染全站。</div>
+                    <div class="mt-3">
+                      <button type="button" class="btn btn-outline-primary" onclick="openPreview()"><i class="bi bi-eye me-1"></i>预览当前模板</button>
+                    </div>
+                  </div>
+                  <div class="col-lg-5">
+                    <label class="form-label fw-semibold">站点语言（10 种语言可选）</label>
+                    <form id="langForm" class="d-flex gap-2 align-items-start">
+                      <select id="langSelect" class="form-select"></select>
+                      <button class="btn btn-primary text-nowrap" type="submit">保存</button>
+                    </form>
+                    <div id="langSaveTip" class="small text-muted mt-1"></div>
+                    <div class="form-text mt-2">站点导航、标题、按钮、SEO 描述、Cookie 横幅等固定文案将按所选语言输出；预览与一键生成全站均生效。</div>
+                  </div>
+                  <div class="col-12">
+                    <label class="form-label fw-semibold">全站产品详情页风格（统一应用于所有产品，不可单产品自选）</label>
+                    <form id="layoutForm" class="d-flex gap-2 align-items-start">
+                      <select id="siteLayoutSelect" class="form-select"></select>
+                      <button class="btn btn-primary text-nowrap" type="submit">保存</button>
+                    </form>
+                    <div id="layoutSaveTip" class="small text-muted mt-1"></div>
+                    <div class="form-text mt-2">选择后所有产品的详情页统一按该风格渲染（Amazon/淘宝/京东/拼多多/Alibaba/Shopee/乐天/eBay/Walmart/Etsy/极简/经典商务 共 12 种）。</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== 公司设置 ===== -->
+        <div class="panel-sec row g-4 mb-4" id="sec-company">
+          <div class="col-12">
+            <div class="card">
+              <div class="card-header"><i class="bi bi-buildings me-2 text-primary"></i>公司信息展示</div>
+              <div class="card-body">
+                <form id="companyForm" class="row g-3">
+                  <div class="col-md-4">
+                    <label class="form-label small mb-1">公司名称</label>
+                    <input id="companyName" class="form-control" placeholder="如: Shenzhen XYZ Tech Co., Ltd.">
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label small mb-1">公司 Logo（直接上传图片）</label>
+                    <div class="input-group input-group-sm">
+                      <input type="file" id="companyLogoFile" class="form-control" accept="image/*">
+                      <button type="button" class="btn btn-outline-primary" id="companyLogoUploadBtn"><i class="bi bi-upload"></i> 上传</button>
+                    </div>
+                    <input type="hidden" id="companyLogo" class="form-control" placeholder="/uploads/logo.png">
+                    <img id="companyLogoPreview" class="mt-1 d-none" style="max-height:48px;background:#fff;border:1px solid #eee;border-radius:4px;padding:4px;">
+                    <div class="form-text">支持 png / jpg / jpeg / gif / webp，上传后自动回填路径。</div>
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label small mb-1">成立时间</label>
+                    <input id="companyFounded" class="form-control" placeholder="如: 2012">
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label small mb-1">公司规模</label>
+                    <input id="companySize" class="form-control" placeholder="如: 100-200 employees">
+                  </div>
+                  <div class="col-md-8">
+                    <label class="form-label small mb-1">公司地址</label>
+                    <input id="companyAddress" class="form-control" placeholder="如: No.88, Bao'an District, Shenzhen, China">
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label small mb-1">公司电话</label>
+                    <input id="companyPhone" class="form-control" placeholder="+86-755-12345678">
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label small mb-1">公司邮箱</label>
+                    <input id="companyEmail" class="form-control" placeholder="sales@example.com">
+                  </div>
+                  <div class="col-md-8">
+                    <label class="form-label small mb-1">页脚版权文字（留空则显示：公司名 © 年份）</label>
+                    <input id="footerCopyright" class="form-control" placeholder="如: Copyright © 2026 Shenzhen XYZ Tech. All Rights Reserved.">
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label small mb-1">备案号（中国大陆网站使用，可留空）</label>
+                    <input id="footerIcp" class="form-control" placeholder="如: 粤ICP备12345678号">
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label small mb-1">所属行业（用于一键生成公司简介）</label>
+                    <input id="companyIndustry" class="form-control" placeholder="如: LED Lighting / Industrial Equipment">
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label small mb-1">主营产品（逗号分隔，用于一键生成公司简介）</label>
+                    <input id="companyProducts" class="form-control" placeholder="如: LED Driver, Street Light, Flood Light">
+                  </div>
+                  <div class="col-md-4 d-flex align-items-end">
+                    <button class="btn btn-primary w-100" type="submit"><i class="bi bi-check2-circle me-1"></i>保存公司信息</button>
+                  </div>
+                  <div class="col-12">
+                    <label class="form-label small mb-1">公司简介（用于公司介绍板块 / About 页面）</label>
+                    <textarea id="companyBrief" class="form-control" rows="4" placeholder="We are a professional manufacturer..."></textarea>
+                    <div class="form-text">公司信息会同步展示在公司介绍板块与网站页脚版权区。</div>
+                    <div class="d-flex flex-wrap align-items-center gap-2 mt-2">
+                      <span class="small text-muted"><i class="bi bi-magic me-1 text-primary"></i>本地一键生成简介草稿（离线免费，无需联网/Key）：</span>
+                      <select id="briefTemplate" class="form-select form-select-sm" style="width:auto">
+                        <option value="factory">工厂制造型 · Factory / Manufacturer</option>
+                        <option value="trading">贸易公司型 · Export Trading</option>
+                        <option value="startup">初创成长型 · Startup &amp; Growth</option>
+                      </select>
+                      <button type="button" class="btn btn-sm btn-outline-primary" onclick="genCompanyBrief()"><i class="bi bi-stars me-1"></i>一键生成</button>
+                      <span class="small text-muted">按已填的公司名称 / 行业 / 成立时间 / 规模 / 主营产品组合生成，可继续手改。</span>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== 品牌与素材（Logo / 横幅 / 联系方式） ===== -->
+        <div class="panel-sec row g-4 mb-4" id="sec-brand">
+          <div class="col-lg-6">
+            <div class="card h-100">
+              <div class="card-header"><i class="bi bi-image me-2 text-primary"></i>网站 Logo（品牌标识）</div>
+              <div class="card-body">
+                <form id="logoForm" class="d-flex gap-2 align-items-center">
+                  <input type="file" id="logoFile" class="form-control" accept="image/*">
+                  <button class="btn btn-primary text-nowrap" type="submit">上传 Logo</button>
+                  <button type="button" class="btn btn-outline-secondary text-nowrap" id="logoRemoveBtn">移除</button>
+                </form>
+                <div class="form-text"><span class="text-warning">推荐尺寸：Logo 200 × 80 像素</span>（透明底 PNG 效果最佳，展示在导航栏左侧）</div>
+                <div id="logoPreview" class="mt-2 d-none"></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="card h-100">
+              <div class="card-header"><i class="bi bi-images me-2 text-primary"></i>横幅轮播管理</div>
+              <div class="card-body">
+                <form id="bannerForm">
+                  <div class="input-group">
+                    <input type="file" id="bannerFile" class="form-control" accept="image/*" multiple>
+                    <button class="btn btn-primary" type="submit">上传</button>
+                  </div>
+                  <div class="form-text"><span class="text-warning">推荐尺寸：横幅 1920 × 600 像素</span>（宽屏轮播，请尽量使用 16:5 比例大图）</div>
+                </form>
+                <div id="bannerList" class="banner-grid mt-3"></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-12">
+            <div class="card">
+              <div class="card-header"><i class="bi bi-telephone me-2 text-primary"></i>联系方式管理</div>
+              <div class="card-body">
+                <form id="contactForm" class="row g-2">
+                  <div class="col-md-4">
+                    <select id="contactType" class="form-select">
+                      <option value="WhatsApp">WhatsApp</option>
+                      <option value="微信">微信</option>
+                      <option value="电话">电话</option>
+                      <option value="QQ">QQ</option>
+                      <option value="Email">Email</option>
+                      <option value="Telegram">Telegram</option>
+                      <option value="Skype">Skype</option>
+                      <option value="LINE">LINE</option>
+                      <option value="Facebook">Facebook</option>
+                      <option value="Instagram">Instagram</option>
+                      <option value="YouTube">YouTube</option>
+                      <option value="TikTok">TikTok</option>
+                      <option value="Twitter">Twitter/X</option>
+                      <option value="LinkedIn">LinkedIn</option>
+                      <option value="Website">Website</option>
+                      <option value="Address">Address</option>
+                      <option value="AliTrade">AliTrade</option>
+                      <option value="Trademanager">Trademanager</option>
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <input id="contactValue" class="form-control" placeholder="号码 / ID / 链接">
+                  </div>
+                  <div class="col-md-2">
+                    <button class="btn btn-success w-100" type="submit">添加</button>
+                  </div>
+                  <div class="col-12">
+                    <div class="form-text">WhatsApp/电话/Email/Telegram/Skype/LINE/社交链接 等可直连的类型，生成后自动显示为品牌图标直达按钮；无法直连的类型（如微信/QQ/Address）点击后自动复制号码。</div>
+                  </div>
+                </form>
+                <div class="table-responsive mt-3">
+                  <table class="table align-middle mb-0">
+                    <thead><tr><th>类型</th><th>号码/ID</th><th class="text-end">操作</th></tr></thead>
+                    <tbody id="contactTable"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== 产品管理 ===== -->
+        <div class="panel-sec row g-4 mb-4" id="sec-product">
+          <div class="col-12">
+            <div class="card">
+              <div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-2">
+                <span><i class="bi bi-box-seam me-2 text-primary"></i>产品管理</span>
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                  <button class="btn btn-sm btn-outline-secondary" type="button" onclick="downloadTemplateXlsx()" title="下载 Excel 导入模板（.xlsx）"><i class="bi bi-file-earmark-arrow-down me-1"></i>下载导入模板</button>
+                  <button class="btn btn-sm btn-outline-primary" type="button" id="productImportToggleBtn" onclick="toggleImportPanel()" title="从 Excel / CSV 批量导入产品"><i class="bi bi-upload me-1"></i>上传批量导入</button>
+                  <button class="btn btn-sm btn-primary" type="button" onclick="openProductForm()"><i class="bi bi-plus-circle me-1"></i>添加产品</button>
+                </div>
+              </div>
+              <div class="card-body">
+                <div id="productImportWrap" class="border rounded p-3 bg-light d-none mb-3">
+                  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+                    <span class="fw-semibold text-primary"><i class="bi bi-cloud-upload me-1"></i>批量导入产品</span>
+                    <button type="button" class="btn-close" onclick="toggleImportPanel()" aria-label="关闭导入面板"></button>
+                  </div>
+                  <div class="row g-3 align-items-end">
+                    <div class="col-md-12 col-lg-4 col-xl-3">
+                      <label class="form-label small mb-1">Step1 下载模板</label>
+                      <div class="d-flex flex-wrap gap-2">
+                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="downloadTemplateXlsx()"><i class="bi bi-file-earmark-excel me-1"></i>Excel 模板(.xlsx)</button>
+                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="downloadTemplateCsv()"><i class="bi bi-filetype-csv me-1"></i>CSV 模板(.csv)</button>
+                      </div>
+                    </div>
+                    <div class="col-md-7 col-lg-5 col-xl-4">
+                      <label class="form-label small mb-1" for="productImportFile">Step2 选择文件（.xlsx/.csv 表格 + 图片一次多选，或直接选 .zip 压缩包；表格 ≤10MB，压缩包 ≤50MB）</label>
+                      <input id="productImportFile" class="form-control" type="file" multiple accept=".xlsx,.csv,.png,.jpg,.jpeg,.gif,.webp,.svg,.zip" onchange="onImportFileChange()">
+                    </div>
+                    <div class="col-md-5 col-lg-3 col-xl-3">
+                      <label class="form-label small mb-1">&nbsp;</label>
+                      <button type="button" class="btn btn-primary w-100" id="productImportBtn" onclick="startProductImport()"><i class="bi bi-play-circle me-1"></i>开始导入</button>
+                    </div>
+                    <div class="col-md-4 col-lg-3 col-xl-2">
+                      <label class="form-label small mb-1">&nbsp;</label>
+                      <button type="button" class="btn btn-sm btn-outline-secondary w-100" onclick="downloadFailReport()" id="failReportBtn" style="display:none"><i class="bi bi-download me-1"></i>下载失败报告</button>
+                    </div>
+                  </div>
+                  <div class="small text-muted mt-2">
+                    提示：模板第 2 行是填写说明、第 3 行是示例，导入时会自动跳过；示例行名称为“示例-请删除本行”，保留它不影响导入。模板最后的「图片」列填图片文件名（如 led-lamp.jpg，多张用 | 分隔），并在 Step2 把图片文件和表格一起选中上传（或打成一个 .zip 压缩包后单独上传）；系统按文件名自动匹配入库，匹配不到的行会提示“图片缺失”但产品仍正常导入。与已有产品重名的行会自动跳过（不会覆盖原产品）；有错的行自动跳过并写进下方报告，不影响其它产品正常导入。
+                  </div>
+                  <div id="productImportReport" class="mt-3 d-none"></div>
+                </div>
+                <div id="productFormWrap" class="border rounded p-3 bg-light d-none mb-3">
+                  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+                    <span class="fw-semibold" id="productFormTitle">添加产品</span>
+                    <div class="d-flex align-items-center gap-2">
+                      <button type="button" class="btn btn-sm btn-outline-primary d-none" id="productCopyBtn" onclick="copyEditingProduct()" title="以当前产品为基础复制一条完整新产品记录"><i class="bi bi-copy me-1"></i>复制当前产品</button>
+                      <button type="button" class="btn-close" onclick="cancelProductForm()" aria-label="关闭编辑"></button>
+                    </div>
+                  </div>
+                <form id="productForm" class="row g-3 align-items-end" novalidate>
+                  <div class="col-md-4">
+                    <label class="form-label small mb-1">产品名称 <span class="text-danger">*</span></label>
+                    <input id="pName" class="form-control" placeholder="如: LED Lamp">
+                  </div>
+                  <div class="col-md-2">
+                    <label class="form-label small mb-1">价格</label>
+                    <input id="pPrice" class="form-control" placeholder="如: $9.90">
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label small mb-1">分类</label>
+                    <div class="d-flex gap-2">
+                      <select id="pCategory" class="form-select"><option value="">未分类</option></select>
+                      <button type="button" class="btn btn-outline-primary btn-sm text-nowrap" title="快速新建一个分类" onclick="quickAddCategory()"><i class="bi bi-plus-lg me-1"></i>新建</button>
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label small mb-1">库存数量</label>
+                    <input id="pStock" class="form-control" type="number" min="0" value="0" placeholder="未知可留空">
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label small mb-1">SKU（库存编码）</label>
+                    <input id="pSku" class="form-control" placeholder="如: LED-100W-A">
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label small mb-1">型号</label>
+                    <input id="pModel" class="form-control" placeholder="如: XT-880">
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label small mb-1">规格</label>
+                    <input id="pSpec" class="form-control" placeholder="如: 10x10x5cm">
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label small mb-1">详情页风格</label>
+                    <input class="form-control" value="跟随全站统一风格（在「网站模板/站点语言/全站详情页风格」中设置）" disabled>
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label small mb-1">产品视频链接（可选）</label>
+                    <input id="pVideo" class="form-control" placeholder="粘贴 YouTube / Vimeo 等视频分享链接">
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label small mb-1">产品图片（第一张为主图）</label>
+                    <div class="d-flex align-items-center gap-2">
+                      <button type="button" class="btn btn-primary btn-sm" id="pImgUploadBtn" onclick="$('pImg').click()"><i class="bi bi-upload me-1"></i>上传产品图片</button>
+                      <input id="pImg" class="form-control d-none" type="file" accept="image/*" multiple>
+                      <span class="small text-muted">可一次选多张，点图可设主图或删除</span>
+                    </div>
+                    <div id="existingImgs" class="d-flex flex-wrap gap-2 mt-2"></div>
+                  </div>
+                  <div class="col-12">
+                    <label class="form-label small mb-1">详细描述（像 Word 一样排版：文字 / 大小 / 加粗 / 对齐 / 标题 / 列表 / 链接 / 图片）</label>
+                    <div class="rte-wrap">
+                      <div class="rte-toolbar" id="pRteBar"></div>
+                      <div id="pRte" class="rte-box" contenteditable="true" data-placeholder="在这里输入产品详细描述：支持文字、大小、加粗、对齐、标题、列表、链接；点击工具栏「插入图片」可上传并继续输入文字，点击图片后按 Delete 即可删除"></div>
+                    </div>
+                    <input type="hidden" id="pDesc">
+                  </div>
+                  <div class="col-12">
+                    <div class="border rounded bg-white">
+                      <button type="button" class="btn btn-sm btn-link w-100 text-decoration-none d-flex justify-content-between align-items-center py-2"
+                              data-bs-toggle="collapse" data-bs-target="#pMetaSeoCollapse" aria-expanded="false" aria-controls="pMetaSeoCollapse">
+                        <span class="fw-semibold"><i class="bi bi-chevron-down me-1" id="pMetaSeoChevron"></i>SEO 标题与描述（选填，高级）</span>
+                        <span class="small text-muted fw-normal">不填则自动使用「产品名 - 站点名」与站点描述</span>
+                      </button>
+                      <div id="pMetaSeoCollapse" class="collapse">
+                        <div class="row g-3 px-3 pb-3">
+                          <div class="col-md-6">
+                            <label class="form-label small mb-1" data-help-key="productMetaTitle">SEO 标题（meta_title）</label>
+                            <input id="pMetaTitle" class="form-control" maxlength="80" placeholder="如：LED 100W 工厂直供 - XX 照明（30-60 字最佳）">
+                            <div class="form-text"><span id="pMetaTitleCount">0</span>/80 字符（建议 30-60）</div>
+                          </div>
+                          <div class="col-md-6">
+                            <label class="form-label small mb-1" data-help-key="productMetaDesc">SEO 描述（meta_description）</label>
+                            <textarea id="pMetaDesc" class="form-control" rows="4" maxlength="300" placeholder="一句话说清：这是什么产品 + 为什么选你（50-160 字最佳）"></textarea>
+                            <div class="form-text"><span id="pMetaDescCount">0</span>/300 字符（建议 50-160）</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-12 d-flex align-items-center gap-2">
+                    <button class="btn btn-primary" type="submit" id="productSubmitBtn"><i class="bi bi-plus-circle me-1"></i>添加产品</button>
+                    <button class="btn btn-outline-secondary" type="button" id="cancelEditBtn" onclick="cancelProductForm()" style="display:none"><i class="bi bi-x-circle me-1"></i>取消编辑</button>
+                    <span class="small text-muted" id="productFormTip"></span>
+                  </div>
+                </form>
+                </div>
+                <div class="table-responsive mt-3">
+                  <table class="table align-middle mb-0">
+                    <thead><tr><th>图片</th><th>名称</th><th>价格</th><th>库存</th><th class="text-center">排序</th><th class="text-end">操作</th></tr></thead>
+                    <tbody id="productTable"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== 板块页面 ===== -->
+        <div class="panel-sec row g-4 mb-4" id="sec-sections">
+          <div class="col-12">
+            <div class="card">
+              <div class="card-header"><i class="bi bi-grid-1x2 me-2 text-primary"></i>板块化建站（自由添加 / 删除 / 排序 / 启停首页板块）</div>
+              <div class="card-body">
+                <div class="row g-3">
+                  <div class="col-md-4">
+                    <label class="form-label small mb-1">添加板块（选择类型）</label>
+                    <select id="sectionTypeSelect" class="form-select"></select>
+                    <div id="sectionTypeDesc" class="form-text mt-1"></div>
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label small mb-1">板块标题</label>
+                    <input id="sectionTitle" class="form-control" placeholder="如: Our Products">
+                  </div>
+                  <div class="col-md-4 d-flex align-items-end">
+                    <button class="btn btn-primary w-100" onclick="addSection()"><i class="bi bi-plus-circle me-1"></i>添加板块</button>
+                  </div>
+                </div>
+                <div class="table-responsive mt-3">
+                  <table class="table align-middle mb-0">
+                    <thead><tr><th style="width:90px;">顺序</th><th>板块</th><th>标题</th><th>状态</th><th style="width:260px;">操作</th></tr></thead>
+                    <tbody id="sectionTable"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12">
+            <div class="card">
+              <div class="card-header"><i class="bi bi-file-earmark-text me-2 text-primary"></i>页面管理</div>
+              <div class="card-body">
+                <div class="row g-3 align-items-end">
+                  <div class="col-md-3">
+                    <label class="form-label small mb-1">页面标题 <span class="text-danger">*</span></label>
+                    <input id="pageTitle" class="form-control" placeholder="如: About Us">
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label small mb-1">页面模板</label>
+                    <select id="pageTemplate" class="form-select">
+                      <option value="">空白页</option>
+                      <option value="about">About Us（公司介绍）</option>
+                    </select>
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label small mb-1">Slug（网址，可留空自动生成）</label>
+                    <input id="pageSlug" class="form-control" placeholder="如: about-us">
+                  </div>
+                  <div class="col-md-3 d-flex align-items-end">
+                    <button class="btn btn-primary w-100" onclick="addPage()"><i class="bi bi-plus-circle me-1"></i>新增页面</button>
+                  </div>
+                </div>
+                <div class="table-responsive mt-3">
+                  <table class="table align-middle mb-0">
+                    <thead><tr><th>标题</th><th>Slug</th><th>状态</th><th class="text-end">操作</th></tr></thead>
+                    <tbody id="pageTable"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+                <!-- ===== 产品分类管理 ===== -->
+        <div class="panel-sec row g-4 mb-4" id="sec-categories">
+          <div class="col-12">
+            <div class="card">
+              <div class="card-header"><i class="bi bi-tags me-2 text-primary"></i>产品分类管理（首页分类筛选 / 产品编辑下拉共用）</div>
+              <div class="card-body">
+                <form id="catAddForm" class="row g-2 align-items-end">
+                  <div class="col-md-5">
+                    <input id="catNameInput" class="form-control" placeholder="新分类名称，如：工业设备" maxlength="60">
+                  </div>
+                  <div class="col-md-3">
+                    <button class="btn btn-primary w-100" type="submit"><i class="bi bi-plus-circle me-1"></i>添加分类</button>
+                  </div>
+                  <div class="col-md-4 small text-muted align-items-center d-flex"><span id="catCountTip"></span></div>
+                </form>
+                <div class="table-responsive mt-3">
+                  <table class="table align-middle mb-0">
+                    <thead><tr><th class="text-center" style="width:70px;">顺序</th><th>分类名称</th><th style="width:120px;">产品数</th><th class="text-end" style="width:280px;">操作</th></tr></thead>
+                    <tbody id="catTable"></tbody>
+                  </table>
+                </div>
+                <div class="form-text mt-2">已有产品用过的旧分类会自动补入；删除分类只取消产品关联，不会删除产品。</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== SEO / GEO ===== -->
+        <div class="panel-sec row g-4 mb-4" id="sec-seo">
+          <div class="col-12">
+            <div class="card">
+              <div class="card-header"><i class="bi bi-search me-2 text-primary"></i>让客户更容易搜到你（SEO / AI 搜索）</div>
+              <div class="card-body">
+                <div class="alert alert-info py-2 small mb-3">
+                  <i class="bi bi-stars me-1"></i>
+                  <b>有什么用？</b>把你卖什么、产品特点、公司资料写清楚，让搜索引擎和 AI 更容易读懂你的网站。不能保证排名上涨或被 AI 推荐。
+                  <br><b>第一次照着做：</b>① 填真实公司资料和产品介绍；② 填下方的网站标题、简介和正式网址，再点保存；③ 点「生成并检查已保存的内容」，按结果补齐；④ 重新生成并发布网站，客户才能看到。
+                  <br>切换网站语言不会自动翻译所有商品，商品翻译请到「商品采集与 AI 翻译」操作。
+                </div>
+
+
+                <div class="border rounded p-3 mb-4" id="visibilityCenter">
+                  <h5>先检查网站，再看有没有带来客户</h5>
+                  <p class="small text-muted">SEO 帮搜索引擎读懂网站。AI GEO 帮资料表达清楚。这里检查实际生成的页面，不预测排名、不编造流量。</p>
+                  <button type="button" class="btn btn-primary" id="visibilityAudit">生成并检查已保存的内容</button>
+                  <button type="button" class="btn btn-outline-secondary" id="visibilityDownload" disabled>下载检查结果</button>
+                  <div id="visibilityReport" class="mt-3" aria-live="polite">还没有检查。</div>
+                  <details class="mt-3"><summary>批量补齐产品搜索介绍（保留已填写内容）</summary>
+                    <p class="small mt-2">从现有产品名称、规格和介绍整理草稿，不编造产品特点，不调用 AI，也不查搜索量。</p>
+                    <button type="button" class="btn btn-sm btn-outline-primary" id="productDraftPreview">先看草稿</button>
+                    <button type="button" class="btn btn-sm btn-primary" id="productDraftApply" disabled>只补空白项</button>
+                    <div id="productDraftResult" class="mt-2 small"></div>
+                  </details>
+                  <details class="mt-3"><summary>搜索访问和模型训练分开设置</summary>
+                    <div class="form-check mt-2"><input type="checkbox" class="form-check-input" id="visibilitySearch"><label for="visibilitySearch">允许 ChatGPT 搜索访问</label></div>
+                    <div class="form-check"><input type="checkbox" class="form-check-input" id="visibilityTraining"><label for="visibilityTraining">允许 OpenAI GPTBot 收集内容用于模型训练（默认关闭）</label></div>
+                    <p class="small text-muted">训练不等于搜索推荐。仅控制对应机器人的自动访问；更改后需发布。GitHub 项目站的 robots.txt 放在子目录不会生效，需要域名根目录配置或绑定独立域名。</p>
+                    <button type="button" class="btn btn-sm btn-outline-primary" id="visibilitySave">保存访问设置</button><span id="visibilitySettingTip" class="ms-2 small"></span><a class="btn btn-sm btn-outline-secondary ms-2" href="/api/visibility/robots" download>下载根目录访问规则</a>
+                  </details>
+                  <details class="mt-3"><summary>白帽、灰帽、黑帽：哪些值得做</summary>
+                    <p class="mt-2"><b>白帽：</b>真实产品介绍、准确标题、客户问答、正常链接。适合长期经营，先修好下方检查中的问题。</p>
+                    <p><b>灰帽：</b>批量模板内容、交换链接等。先检查重复标题和空洞内容；付费链接应标明 sponsored，不能当成稳定提排名的方法。</p>
+                    <p><b>黑帽：</b>隐藏链接、给搜索程序和访客两套内容、批量造假页面。可能带来短期波动，也可能失去搜索曝光。默认关闭隐藏链接输出；需要试验时使用下方开关，不承诺能获客。</p>
+                  </details>
+                  <details class="mt-3"><summary>高级试验：隐藏链接开关（高风险）</summary>
+                    <p class="small mt-2">开启后，“板块与页面”中的隐藏链接板块会实际写入网站。关闭后重新生成并发布即可移除。此方法可能损害搜索曝光，不会计为 SEO 优化得分。</p>
+                    <div class="form-check"><input type="checkbox" class="form-check-input" id="experimentEnabled"><label for="experimentEnabled">允许本网站输出隐藏链接试验板块</label></div>
+                    <button type="button" class="btn btn-sm btn-outline-warning" id="experimentSave">保存试验开关</button><span class="ms-2 small" id="experimentTip"></span>
+                  </details>
+                  <details class="mt-3"><summary>记录真实效果：每周花两分钟</summary>
+                    <p class="small mt-2">从 Google Search Console 复制同一统计口径的数据；询盘填你实际收到的数量。AI 引用要留下问题和来源链接。这里手动记录，不会自动读取账号。</p>
+                    <div class="row g-2">
+                      <div class="col-md-3"><label for="vrDate">统计日期</label><input type="date" class="form-control" id="vrDate"></div>
+                      <div class="col-md-3"><label for="vrImpressions">搜索曝光</label><input type="number" min="0" class="form-control" id="vrImpressions" value="0"></div>
+                      <div class="col-md-3"><label for="vrClicks">搜索点击</label><input type="number" min="0" class="form-control" id="vrClicks" value="0"></div>
+                      <div class="col-md-3"><label for="vrInquiries">实际询盘</label><input type="number" min="0" class="form-control" id="vrInquiries" value="0"></div>
+                      <div class="col-md-6"><label for="vrSource">来源和统计时间范围</label><input class="form-control" id="vrSource" placeholder="例如 Search Console，本周一至周日"></div>
+                      <div class="col-md-6"><label for="vrEvidence">AI 引用证据（没有就留空）</label><input class="form-control" id="vrEvidence" placeholder="搜索问题、日期、回答来源链接"></div>
+                    </div><button type="button" class="btn btn-sm btn-outline-primary mt-2" id="vrSave">保存本次记录</button>
+                    <div id="vrRecords" class="mt-2 small"></div>
+                  </details>
+                </div>
+                <!-- P3：行业一键示例（只填空字段，不覆盖已填内容） -->
+                <div class="border rounded py-2 px-3 mb-3 small bg-white" style="border-color:#ffc107 !important;">
+                  <div class="d-flex flex-wrap align-items-center gap-2">
+                    <span class="text-muted">还不确定怎么写？选你的业务类型，一键填好示例文案（<b>不会覆盖你已经填的内容</b>）：</span>
+                    <button id="seoSampleFactory" class="btn btn-sm btn-outline-warning" type="button"><i class="bi bi-building me-1"></i>工厂 / 制造商</button>
+                    <button id="seoSampleTrading" class="btn btn-sm btn-outline-warning" type="button"><i class="bi bi-globe2 me-1"></i>外贸公司 / 贸易商</button>
+                    <button id="seoSampleStartup" class="btn btn-sm btn-outline-warning" type="button"><i class="bi bi-rocket-takeoff me-1"></i>初创 / 新站</button>
+                  </div>
+                  <div id="seoSampleTip" class="mt-2 d-none"></div>
+                </div>
+
+                <div class="row g-3">
+                  <!-- 左：AI GEO 配置 -->
+                  <div class="col-lg-6">
+                    <div class="border rounded p-3 h-100 bg-light-subtle">
+                      <h6 class="text-primary mb-1"><i class="bi bi-stars me-1"></i>① AI GEO 配置（AI 搜索如何介绍你）</h6>
+                      <div class="small text-muted mb-2">填写真实公司资料和客户常问的问题，保存后重新生成并发布。能被读取不等于会被 AI 推荐。</div>
+                      <div class="mb-3">
+                        <label class="form-label small mb-1" data-help-key="geoBrandSummary">公司一句话介绍（Brand Summary）</label>
+                        <textarea id="geoBrandSummary" class="form-control" rows="2" placeholder="Example: We are a China-based LED lighting factory with 15 years of OEM/ODM experience."></textarea>
+                        <div class="form-text">用一句真实的话说明主营业务。软件会把它展示在网站上；AI 是否采用由平台决定。</div>
+                      </div>
+                      <div class="mb-3">
+                        <label class="form-label small mb-1" data-help-key="geoSellingPoints">核心卖点 / 优势列表（3-8 条，每行一条，只写真实情况）</label>
+                        <textarea id="geoSellingPoints" class="form-control" rows="5" placeholder="15+ years manufacturing experience&#10;ISO9001 &amp; CE certified factory&#10;Low MOQ from 100 pcs&#10;Free sample within 3 days"></textarea>
+                        <div class="form-text">建议 3-8 条：只写能核实的事实，避免重复。每行一条，会展示在首页业务资料中。</div>
+                      </div>
+                      <!-- P2：目标客户市场 -->
+                      <div class="mb-3">
+                        <label class="form-label small mb-1" data-help-key="geoTargetMarkets">目标客户市场（每行一个，如 North America）</label>
+                        <textarea id="geoTargetMarkets" class="form-control" rows="3" placeholder="North America&#10;EU&#10;Southeast Asia"></textarea>
+                        <div class="form-text">写实际能服务的市场，每行一个，不要填写做不到的地区。</div>
+                      </div>
+                      <!-- P2：认证资质 -->
+                      <div class="mb-3">
+                        <label class="form-label small mb-1" data-help-key="geoCerts">认证资质（真实拥有的证书，每行一个）</label>
+                        <textarea id="geoCerts" class="form-control" rows="3" placeholder="ISO9001&#10;CE&#10;RoHS"></textarea>
+                        <div class="form-text">把真实拥有的证书填进来（ISO、CE、RoHS 等）。没有的不要写；这些资料会展示在客户的网站上。</div>
+                      </div>
+                      <!-- P2：服务能力 + 工厂常用项填充 -->
+                      <div class="mb-3">
+                        <label class="form-label small mb-1" data-help-key="geoSvcCaps">服务能力（B2B 客户最关心的 4 件事：OEM/ODM、交期、MOQ、样品）</label>
+                        <textarea id="geoSvcCaps" class="form-control" rows="4" placeholder="OEM/ODM supported&#10;Delivery time: 15-25 days&#10;MOQ: 100 pcs&#10;Free samples within 3 days"></textarea>
+                        <div class="input-group input-group-sm mt-1">
+                          <select id="geoSvcPreset" class="form-select">
+                            <option value="">按工厂常用项填充…</option>
+                            <option value="en">填英文样板（OEM/ODM · 交期 · MOQ · 样品）</option>
+                            <option value="zh">填中文样板（支持 OEM/ODM · 交期 · MOQ · 样品）</option>
+                          </select>
+                          <button class="btn btn-outline-secondary" type="button" id="geoSvcPresetBtn" disabled>填充示例</button>
+                        </div>
+                        <div class="form-text">“按工厂常用项填充”只是给占位样板，务必改成你的真实交期 / MOQ / 样品政策。</div>
+                      </div>
+                      <!-- P2：FAQ 行编辑器 -->
+                      <div class="mb-3">
+                        <label class="form-label small mb-1" data-help-key="geoFaq">常见问题 FAQ（AI 常被问到的问题；行式编辑）</label>
+                        <div id="geoFaqRows" class="mb-2"></div>
+                        <button class="btn btn-outline-primary btn-sm" type="button" id="geoFaqAdd"><i class="bi bi-plus-circle me-1"></i>添加一条 FAQ</button>
+                        <div class="form-text">AI 常答不出的细节（交期 / MOQ / 样品 / 定制）写进这里，方便访客了解，也供搜索程序理解；是否引用由搜索平台决定。FAQ 会优先生成到 FAQPage 结构化数据与 FAQ 页面。</div>
+                      </div>
+                      <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" id="geoAiEnabled" checked>
+                        <label class="form-check-label small" for="geoAiEnabled">允许 ChatGPT 搜索访问网站（推荐开启）</label>
+                        <div class="form-text">保存并发布后控制 OAI-SearchBot 的访问；不是所有 AI 的总开关，也不代表允许模型训练。项目网址的 robots.txt 需放在域名根目录才生效。</div>
+                      </div>
+                      <!-- P2：AI GEO 健康度 / 预览 / 一键草稿 -->
+                      <div class="d-flex flex-wrap gap-2 mb-2">
+                        <button class="btn btn-outline-primary btn-sm" type="button" id="geoHealthBtn"><i class="bi bi-activity me-1"></i>资料填写完整度</button>
+                        <button class="btn btn-outline-secondary btn-sm" type="button" id="geoPreviewBtn"><i class="bi bi-eye me-1"></i>查看资料示例（非真实 AI 回答）</button>
+                        <button class="btn btn-outline-success btn-sm" type="button" id="geoDraftBtn"><i class="bi bi-magic me-1"></i>从公司资料一键生成 GEO 草稿</button>
+                        <button class="btn btn-outline-info btn-sm" type="button" id="geoLoadDraftToFormBtn" style="display:none;"><i class="bi bi-arrow-repeat me-1"></i>把草稿填回表单</button>
+                      </div>
+                      <div id="geoHealthBox" class="small text-muted mb-2">点击「资料填写完整度」：系统会按 0-100 分给你打分，并列出缺哪一项、去哪补。</div>
+                      <div id="geoPreviewBox" class="small text-muted mb-2">点击「查看资料示例（非真实 AI 回答）」：查看软件按已填资料拼出的示例，不是实际搜索或引用结果，以及将写入 llms.txt 的结构化内容。</div>
+                      <div id="geoDraftBox" class="small text-muted mb-2">点击「从公司资料一键生成 GEO 草稿」：用右侧「公司信息」已填的行业 / 主营 / 年份等帮你起草 Brand Summary / 卖点 / 服务能力，缺数据用 [待补充] 占位、绝不编造，生成后可手动修改再保存。</div>
+                      <div class="alert alert-light border small mb-0">
+                        <i class="bi bi-info-circle me-1"></i>资料填写 → 保存 → 生成并检查 → 发布 → 记录真实效果。llms.txt 是可选说明文件，不能保证 AI 推荐，Google AI 搜索不要求它。
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- 右：经典 SEO 配置 -->
+                  <div class="col-lg-6">
+                    <div class="border rounded p-3 h-100">
+                      <h6 class="text-success mb-1"><i class="bi bi-search me-1"></i>② 经典 SEO 配置（Google / Bing）</h6>
+                      <div class="small text-muted mb-2">先填标题和简介，让客户一眼知道你卖什么。关键词可以后补，堆很多词不会自动提高排名。</div>
+                      <div class="mb-3">
+                        <label class="form-label small mb-1" data-help-key="seoSiteTitle">搜索结果标题：你卖什么 + 公司名</label>
+                        <input id="seoSiteTitle" class="form-control" placeholder="My Export Site - Professional LED Manufacturer">
+                      </div>
+                      <div class="mb-3">
+                        <label class="form-label small mb-1" data-help-key="seoSiteKeywords">产品关键词（选填，用英文逗号隔开）</label>
+                        <input id="seoSiteKeywords" class="form-control" placeholder="led lamp, led strip light, manufacturer, oem">
+                      </div>
+                      <div class="mb-3">
+                        <label class="form-label small mb-1" data-help-key="seoSiteDescription">网站简介：用一两句话说明卖什么、服务谁</label>
+                        <textarea id="seoSiteDescription" class="form-control" rows="2" placeholder="We are a professional LED factory in China, supplying high quality lighting products worldwide."></textarea>
+                      </div>
+                      <div class="row g-2 mb-3">
+                        <div class="col-6">
+                          <label class="form-label small mb-1" data-help-key="seoAuthor">公司或品牌名称（选填）</label>
+                          <input id="seoAuthor" class="form-control" placeholder="Company Name">
+                        </div>
+                        <div class="col-6">
+                          <label class="form-label small mb-1" data-help-key="seoRobots">搜索收录规则（不懂就保持默认）</label>
+                          <input id="seoRobots" class="form-control" placeholder="index, follow">
+                        </div>
+                      </div>
+                      <div class="mb-3">
+                        <label class="form-label small mb-1" data-help-key="seoSiteUrl">客户真正访问的网站地址</label>
+                        <input id="seoSiteUrl" class="form-control" placeholder="https://www.yourcompany.com">
+                        <div class="form-text">填发布后的完整网址，例如 https://www.yourcompany.com。系统用它标明你的正式页面。不要填 localhost 或 127.0.0.1。</div>
+                      </div>
+                      <div class="mb-3">
+                        <label class="form-label small mb-1" data-help-key="seoHiddenKeywords">补充关键词（选填，英文逗号分隔；白帽用途）</label>
+                        <input id="seoHiddenKeywords" class="form-control" placeholder="led strip light, wholesale, factory direct">
+                        <div class="form-text text-danger"><i class="bi bi-exclamation-triangle me-1"></i>旧版“隐藏关键词文字”已被移除——在网页里放看不见的关键词属于黑帽，会被 Google 惩罚。补充关键词保留作选题笔记，不再加入网页代码。站点 Keywords 仅保留兼容用途； <b>meta keywords</b> 与<b>结构化数据</b>，安全合规。</div>
+                      </div>
+                      <div class="d-flex align-items-center gap-2">
+                        <button class="btn btn-success" type="submit" form="seoForm"><i class="bi bi-check2-circle me-1"></i>保存 SEO 设置</button>
+                        <span id="seoSaveTip" class="small text-muted"></span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <form id="seoForm" class="d-none"></form>
+
+                <!-- ③ 关键词建议器 -->
+                <div class="border rounded p-3 mt-3">
+                  <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                    <h6 class="mb-0 text-primary"><i class="bi bi-magic me-1"></i>③ 关键词建议器（自动从产品生成）</h6>
+                    <button class="btn btn-outline-primary btn-sm" type="button" id="suggestKwBtn"><i class="bi bi-lightning-charge me-1"></i>自动生成推荐关键词</button>
+                    <button class="btn btn-outline-success btn-sm" type="button" id="fillKwBtn" disabled><i class="bi bi-box-arrow-in-down me-1"></i>一键填入“站点 Keywords”</button>
+                    <button class="btn btn-outline-warning btn-sm" type="button" id="fillHiddenBtn" disabled><i class="bi bi-box-arrow-in-down me-1"></i>填入“补充关键词”（长尾词）</button>
+                  </div>
+                  <div id="suggestKwBox" class="small text-muted">点击「自动生成推荐关键词」，系统会根据你的产品名 / 分类 / 公司名给出关键词与长尾词（纯本地生成，不联网）。</div>
+                </div>
+
+                <!-- ④ SEO 自检清单 -->
+                <div class="border rounded p-3 mt-3">
+                  <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                    <h6 class="mb-0 text-success"><i class="bi bi-clipboard-check me-1"></i>④ SEO 自检清单（保存并生成网站后再点“开始自检”更准）</h6>
+                    <button class="btn btn-outline-success btn-sm" type="button" id="seoAuditBtn"><i class="bi bi-check2-square me-1"></i>开始自检</button>
+                  </div>
+                  <div id="seoAuditBox" class="small text-muted">逐项检查：标题长度 / 描述长度 / 关键词 / AI GEO / 产品图 alt / sitemap / llms.txt 等，并解释“为什么重要”。</div>
+                </div>
+
+                <!-- ⑤ 黑白帽合规提示 -->
+                <div class="border rounded p-3 mt-3">
+                  <h6 class="mb-2 text-success"><i class="bi bi-patch-check me-1"></i>⑤ 推广方法说明</h6>
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <div class="bg-success-subtle border border-success-subtle rounded p-2 small">
+                        <b class="text-success"><i class="bi bi-check-circle me-1"></i>白帽（推荐，长期安全）：</b>
+                        <ul class="mb-0 ps-3 mt-1">
+                          <li>持续产出原创、真实的产品与公司内容；</li>
+                          <li>准确标明产品和公司资料，问答与访客实际看到的内容一致；</li>
+                          <li>页面之间自然内链（产品↔详情↔联系我们）；</li>
+                          <li>图片都写清楚 alt；多语言页面用 hreflang 声明；</li>
+                          <li>在真实行业网站、社媒上做口碑，获取自然外链。</li>
+                        </ul>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="bg-danger-subtle border border-danger-subtle rounded p-2 small">
+                        <b class="text-danger"><i class="bi bi-x-circle me-1"></i>黑帽（危险，有失去搜索曝光的风险）：</b>
+                        <ul class="mb-0 ps-3 mt-1">
+                          <li><b>关键词堆砌</b>：同一关键词反复塞满页面 → 被判垃圾内容降权；</li>
+                          <li><b>隐藏文字/链接</b>：白字白底、display:none、看不见的链接 → Google 明确打击；</li>
+                          <li><b>链接农场/蜘蛛池</b>：批量买卖互链、隐藏外链群 → 可能失去搜索曝光；</li>
+                          <li><b>伪装页面 Cloaking</b>：给搜索引擎看 A、给用户看 B → 可能违反搜索平台规则；</li>
+                          <li><b>采集/洗稿</b>：复制他人内容 → 难以提供独特价值。</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- ⑥ 第三方统计 + Cookie 横幅 -->
+                <div class="border rounded p-3 mt-3">
+                  <h6 class="mb-2 text-primary"><i class="bi bi-bar-chart-line me-1"></i>⑥ 第三方统计 & Cookie 同意横幅</h6>
+                  <div class="row g-3">
+                    <div class="col-md-7">
+                      <label class="form-label small mb-1" data-help-key="seoAnalyticsCode">第三方统计代码（GA4 / 百度统计 / Plausible 等 script 片段）</label>
+                      <textarea id="seoAnalyticsCode" class="form-control" rows="3" placeholder="&lt;script async src=&quot;https://www.googletagmanager.com/gtag/js?id=G-XXXX&quot;&gt;&lt;/script&gt;&#10;&lt;script&gt;window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-XXXX');&lt;/script&gt;"></textarea>
+                      <div class="form-text">保存后在「一键生成」时自动注入所有页面的 &lt;head&gt; 中。直接粘贴平台提供的整段脚本即可。</div>
+                    </div>
+                    <div class="col-md-5">
+                      <div class="form-check form-switch mt-4">
+                        <input class="form-check-input" type="checkbox" id="seoCookieEnabled" checked>
+                        <label class="form-check-label" for="seoCookieEnabled">显示 Cookie 同意横幅</label>
+                      </div>
+                      <div class="small text-muted mt-1">首次访问显示「同意 / 仅必要」提示，横幅本身不代表统计脚本已经按同意状态控制；关闭后不再弹出。</div>
+                      <div class="mt-3">
+                        <button class="btn btn-success" type="submit" form="seoForm"><i class="bi bi-check2-circle me-1"></i>保存 SEO 设置</button>
+                        <span class="small text-muted ms-1">（与上方 SEO 一同保存）</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% include 'growth_tools.html' %}
+
+        <div class="panel-sec row g-4 mb-4" id="sec-friendlinks">
+          <div class="col-12">
+            <div class="card">
+              <div class="card-header"><i class="bi bi-link-45deg me-2 text-primary"></i>友情链接（页脚展示，可配置 nofollow）</div>
+              <div class="card-body">
+                <form id="friendLinkForm" class="row g-2 align-items-end">
+                  <div class="col-md-4">
+                    <input id="flName" class="form-control" placeholder="网站名称，如: Alibaba">
+                  </div>
+                  <div class="col-md-5">
+                    <input id="flUrl" class="form-control" placeholder="URL，如: https://www.alibaba.com">
+                  </div>
+                  <div class="col-md-3">
+                    <button class="btn btn-primary w-100" type="submit"><i class="bi bi-plus-circle me-1"></i>添加友链</button>
+                  </div>
+                </form>
+                <div class="table-responsive mt-3">
+                  <table class="table align-middle mb-0">
+                    <thead><tr><th>名称</th><th>URL</th><th>nofollow</th><th class="text-end">操作</th></tr></thead>
+                    <tbody id="friendLinkTable"></tbody>
+                  </table>
+                </div>
+                <div class="form-text mt-2">友情链接请公开展示，只链接真实相关的网站。旧隐藏链接数据保留，默认不输出；高级试验区可单独开启。</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== 支付配置 ===== -->
+        <div class="panel-sec row g-4 mb-4" id="sec-pay">
+          <div class="col-12">
+            <div class="card">
+              <div class="card-header"><i class="bi bi-credit-card me-2 text-primary"></i>支付方式配置（全球移动 / 网络支付自选，可添加多个渠道）</div>
+              <div class="card-body">
+                <form id="payForm">
+                  <div class="d-flex flex-column gap-2 mb-2" id="payMethodRows"></div>
+                  <div class="d-flex gap-2 align-items-center flex-wrap">
+                    <button type="button" class="btn btn-outline-primary" id="payAddBtn"><i class="bi bi-plus-lg me-1"></i>添加支付方式</button>
+                    <button class="btn btn-success" type="submit"><i class="bi bi-check2-circle me-1"></i>保存支付配置</button>
+                    <span id="paySaveTip" class="small text-muted"></span>
+                  </div>
+                  <div class="form-text mt-3">前台以「We accept / 我们支持以下支付方式」的<b>徽章式纯展示列表</b>呈现（不可点击、不占按钮位），支持品牌色字标徽章与自定义图标，横向自动换行排列——
+                    <ul class="mb-1 ps-3 small">
+                      <li><strong>图标上传</strong>：点击行内「图标」按钮上传渠道 Logo（推荐<b>横版透明 PNG/SVG，高 32~48px、宽高比约 2.5:1~1:1</b>）；不上传则自动显示内置品牌字标徽章；</li>
+                      <li><strong>收款账号 / 邮箱 / 链接</strong>：仅作为您自行留档的收款信息，前台徽章模式不再展示、不跳转；留空亦可；</li>
+                      <li><strong>其它渠道（自定义名称）</strong>：清单未覆盖的支付方式（如 MTN MoMo、Zarinpal 等），选择后填写渠道名称；建议同时上传官方图标。</li>
+                    </ul>
+                    徽章会显示在产品详情页与首页产品卡片（各最多 6 个 + “更多”提示），不撑大「View Detail」按钮。未配置任何渠道则产品不显示支付区域。
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== 数据备份 ===== -->
+        <div class="panel-sec row g-4 mb-4" id="sec-backup">
+          <div class="col-12">
+            <div class="card border-primary">
+              <div class="card-header"><i class="bi bi-database-down me-2 text-primary"></i>数据备份（数据库 + 上传图片一键打包，可随时还原）</div>
+              <div class="card-body">
+                <div class="row g-4">
+                  <div class="col-md-6">
+                    <div class="border rounded p-3 h-100">
+                      <h6 class="mb-2"><i class="bi bi-download me-1 text-success"></i>① 导出备份</h6>
+                      <p class="small text-muted mb-2">点击按钮生成包含全部网站数据与上传图片的 zip 备份文件，文件名自带日期。</p>
+                      <button class="btn btn-success" id="backupCreateBtn" onclick="createBackup()"><i class="bi bi-file-earmark-zip me-1"></i>立即备份并下载</button>
+                      <span id="backupTip" class="small text-muted ms-2"></span>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="border rounded p-3 h-100">
+                      <h6 class="mb-2"><i class="bi bi-upload me-1 text-warning"></i>② 从备份还原</h6>
+                      <div class="alert alert-danger py-2 small mb-2"><i class="bi bi-exclamation-octagon me-1"></i><strong>注意：</strong>导入会<strong>覆盖当前全部数据</strong>。系统先自动备份，备份成功才继续；可在备份记录中找回。</div>
+                      <div class="input-group">
+                        <input type="file" id="backupFileInput" class="form-control" accept=".zip">
+                        <button class="btn btn-warning" onclick="restoreBackup()"><i class="bi bi-arrow-repeat me-1"></i>开始还原</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <hr>
+                <h6 class="mb-2"><i class="bi bi-clock-history me-1 text-primary"></i>备份记录（本机最近 10 条）</h6>
+                <div class="table-responsive">
+                  <table class="table align-middle mb-0">
+                    <thead><tr><th>备份文件</th><th>大小</th><th>创建时间</th><th class="text-end">操作</th></tr></thead>
+                    <tbody id="backupTable"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== 网站部署 ===== -->
+        <div class="panel-sec row g-4 mb-4" id="sec-deploy">
+          <div class="col-12">
+            <div class="card border-success">
+              <div class="card-header"><i class="bi bi-rocket-takeoff me-2 text-success"></i>部署设置</div>
+              <div class="card-body">
+                <div class="row g-3 align-items-end">
+                  <div class="col-md-3">
+                    <label class="form-label small mb-1">网站名称</label>
+                    <input id="siteName" class="form-control" value="My Export Site" placeholder="如: My Export Company">
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label small mb-1">GitHub 仓库名（不存在会自动创建）</label>
+                    <input id="repoName" class="form-control" placeholder="仅填仓库名，如 my-export-site" autocomplete="off">
+                  </div>
+                  <div class="col-md-6">
+                    <button id="deployBtn" class="btn btn-lg btn-success w-100" onclick="deployAll()"><i class="bi bi-rocket-takeoff me-1"></i>一键生成外贸网站并上传到 GitHub</button>
+                  </div>
+                </div>
+                <div id="deployResult" class="mt-3"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== 使用教程 ===== -->
+        <div class="panel-sec row g-4 mb-4" id="sec-tutorial">
+          <div class="col-12">
+            <div class="card">
+              <div class="card-header"><i class="bi bi-journal-bookmark me-2 text-primary"></i>新手注册教程（GitHub 注册 / Token 获取 / 登录 / 注意事项）</div>
+              <div class="card-body" id="tutorialBox">
+                <div class="text-muted small">加载中...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-sec row g-4 mb-4" id="sec-starter">
+          <div class="col-12">
+            <div class="card border-primary">
+              <div class="card-header"><i class="bi bi-grid-1x2 me-2 text-primary"></i>模板与示例（内置「原始模板」）</div>
+              <div class="card-body">
+                <p class="small text-muted mb-3">软件出厂自带一套完整示例模板（文字 / 图片 / SEO / 推广工具箱 / 占位域名均已填好）。可一键加载作为起点，或随时清空回到空白框架自行填写。</p>
+                <div class="d-flex flex-wrap gap-2">
+                  <button class="btn btn-primary" id="starterLoadBtn" onclick="loadStarterTemplate()"><i class="bi bi-download me-1"></i>加载示例模板</button>
+                  <button class="btn btn-outline-danger" id="starterClearBtn" onclick="clearStarterContent()"><i class="bi bi-eraser me-1"></i>一键清空示例内容</button>
+                  <span id="starterTip" class="align-self-center small text-muted"></span>
+                </div>
+                <div class="alert alert-warning py-2 small mt-3 mb-0"><i class="bi bi-exclamation-octagon me-1"></i><strong>注意：</strong>「加载示例模板」会覆盖当前的产品 / 横幅 / 联系方式 / 板块内容等数据，建议先在「数据备份」里备份。「一键清空」会清空全部填写内容，但保留 9 大板块框架与模板设置。</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <footer class="app-footer">
+      <div class="float-end d-none d-sm-inline"><i class="bi bi-globe2 me-1"></i>伟大作品™️工作室 ChatFLOW 2.1.5</div>
+      <strong>© 2026 Export Site Admin</strong>
+    </footer>
+  </main>
+</div>
+
+<!-- ===== 预览弹窗 ===== -->
+<div class="modal fade" id="previewModal" tabindex="-1">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <span class="fw-bold me-2"><i class="bi bi-eye me-1 text-primary"></i>实时预览</span>
+        <button class="btn btn-outline-secondary btn-sm" onclick="setPreview('mobile')"><i class="bi bi-phone me-1"></i>手机预览</button>
+        <button class="btn btn-outline-secondary btn-sm ms-1" onclick="setPreview('desktop')"><i class="bi bi-display me-1"></i>电脑预览</button>
+        <button type="button" class="btn-close ms-auto" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body d-flex justify-content-center bg-light">
+        <div id="previewFrameWrap" style="transition: all .3s; max-width:100%; overflow:auto;">
+          <iframe id="previewFrame" src="about:blank" style="width:1280px;height:720px;border:1px solid #dee2e6;border-radius:8px;background:#fff;"></iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 板块配置编辑 Modal ===== -->
+<div class="modal fade" id="sectionModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <span class="fw-bold" id="sectionModalTitle">板块配置</span>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="sectionModalBody"></div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+        <button class="btn btn-primary" onclick="saveSection()">保存板块配置</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 页面编辑 Modal ===== -->
+<div class="modal fade" id="pageModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <span class="fw-bold"><i class="bi bi-file-earmark-text me-1 text-primary"></i>编辑页面</span>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="pageModalBody"></div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+        <button class="btn btn-primary" onclick="savePage()">保存页面</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ===== 3 步快速开始引导 Modal（首次打开自动弹出） ===== -->
+<div class="modal fade" id="onboardModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <span class="fw-bold"><i class="bi bi-rocket-takeoff me-2 text-primary"></i>欢迎使用！3 步生成你的第一个外贸网站</span>
+        <button type="button" class="btn-close" id="onboardSkipTop" title="跳过引导"></button>
+      </div>
+      <div class="modal-body">
+        <div class="d-flex justify-content-between mb-3 small text-muted" id="onboardStepsBar">
+          <span class="fw-bold text-primary" id="obStepLabel1">① 给网站起个名字</span>
+          <span id="obStepLabel2">② 挑一个喜欢的模板</span>
+          <span id="obStepLabel3">③ 生成演示网站</span>
+        </div>
+        <hr class="mt-0">
+
+        <!-- 第 1 步 -->
+        <div id="obStep1">
+          <div class="mb-3">
+            <label class="form-label fw-semibold">网站名称</label>
+            <input id="obSiteName" class="form-control form-control-lg" placeholder="例如：SHENZHEN LED CO., LTD（用英文，做外贸站）">
+            <div class="form-text">这个名字会显示在网站顶部浏览器标签上，以后在「部署」面板随时能改。</div>
+          </div>
+          <button class="btn btn-primary" id="obNext1">下一步：挑模板 <i class="bi bi-arrow-right"></i></button>
+        </div>
+
+        <!-- 第 2 步 -->
+        <div id="obStep2" class="d-none">
+          <div class="row g-2" id="obTemplateGrid" style="max-height:45vh; overflow:auto;"></div>
+          <div class="d-flex gap-2 mt-3">
+            <button class="btn btn-outline-secondary" id="obBack2"><i class="bi bi-arrow-left"></i> 上一步</button>
+            <button class="btn btn-primary" id="obNext2" disabled>下一步：生成演示网站 <i class="bi bi-arrow-right"></i></button>
+          </div>
+        </div>
+
+        <!-- 第 3 步 -->
+        <div id="obStep3" class="d-none">
+          <div id="obGenStatus"></div>
+          <div id="obGenResult"></div>
+          <div class="d-flex gap-2 mt-3 flex-wrap" id="obStep3Btns">
+            <button class="btn btn-outline-secondary" id="obBack3"><i class="bi bi-arrow-left"></i> 上一步</button>
+            <button class="btn btn-success d-none" id="obPreview" target="_blank"><i class="bi bi-eye me-1"></i>打开预览看看</button>
+            <button class="btn btn-outline-danger d-none" id="obReset"><i class="bi bi-trash me-1"></i>清空演示数据，从零开始录</button>
+            <button class="btn btn-primary d-none" id="obFinish">完成，进入后台 <i class="bi bi-check2"></i></button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer small text-muted justify-content-between">
+        <span><i class="bi bi-info-circle me-1"></i>演示网站只是本地预览，随时可以清空重来，不影响真实内容</span>
+        <button class="btn btn-link btn-sm text-decoration-none" id="obSkip">跳过引导，直接进后台</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== P2：GEO 一键草稿确认 Modal ===== -->
+<div class="modal fade" id="geoDraftModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <span class="fw-bold"><i class="bi bi-magic me-2 text-success"></i>用公司资料一键生成 GEO 草稿</span>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body small" id="geoDraftModalBody">
+        <div class="alert alert-warning py-2">
+          <i class="bi bi-exclamation-triangle me-1"></i>草稿会按当前站点语言生成。缺数据处用 <b>[待补充]</b> 占位、不替你编造行业 / 市场 / 认证；FAQ 不会自动生成（需真实业务答案），建议把客户常问的交期 / MOQ / 样品问题手动加入 FAQ。
+        </div>
+        <div id="geoDraftBody"></div>
+        <div id="geoDraftTips" class="small text-danger mb-2"></div>
+        <hr>
+        <div class="alert alert-info py-2 mb-1">
+          <i class="bi bi-question-circle me-1"></i>请选择写入方式（草稿不会自动保存，选择后请再点「保存 SEO 设置」）：
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+        <button class="btn btn-outline-primary" id="geoDraftFillEmptyBtn" type="button"><i class="bi bi-pencil-square me-1"></i>只填空字段</button>
+        <button class="btn btn-primary" id="geoDraftOverwriteBtn" type="button"><i class="bi bi-arrow-repeat me-1"></i>整体覆盖 4 个 GEO 字段</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/static/vendor/js/bootstrap.bundle.min.js"></script>
+<script src="/static/vendor/js/adminlte.min.js"></script>
+<script src="/static/seo_help.js?v=20260907p3"></script>
+<script src="/static/admin.js?v=2.1.5"></script>
+
+<!-- 授权到期倒计时提示横幅（离线/作废宽限期内显示，提示用户及时备份） -->
+<style>
+#graceBanner{display:none;position:fixed;top:0;left:0;right:0;z-index:99999;
+  background:#c0392b;color:#fff;font-weight:700;text-align:center;padding:10px 16px;
+  font-size:15px;line-height:1.4;box-shadow:0 2px 8px rgba(0,0,0,.35);}
+#updateBanner{position:fixed;top:0;left:0;right:0;z-index:2001;
+  background:#0d6efd;color:#fff;font-weight:600;text-align:center;padding:10px 16px;
+  font-size:15px;line-height:1.5;box-shadow:0 2px 8px rgba(0,0,0,.35);}
+#updateBanner a{color:#fff;text-decoration:underline;font-weight:700;}
+#updateBanner .ub-close{float:right;cursor:pointer;margin-left:14px;font-weight:700;opacity:.9;}
+</style>
+<div id="graceBanner"></div>
+<div id="updateBanner" style="display:none"></div>
+<script>
+(function(){
+  var banner = document.getElementById('graceBanner');
+  var ub = document.getElementById('updateBanner');
+  function syncTop(){
+    // 更新条显示时把授权警告条往下挪，避免两条重叠
+    banner.style.top = (ub.style.display === 'block') ? '46px' : '0';
+  }
+  function poll(){
+    fetch('/api/license_status').then(function(r){return r.json();}).then(function(d){
+      if(d && d.grace_warning){
+        banner.textContent = d.grace_warning;
+        banner.style.display = 'block';
+      } else {
+        banner.style.display = 'none';
+      }
+      syncTop();
+    }).catch(function(){ /* 忽略网络错误，下次轮询再试 */ });
+  }
+  poll();
+  setInterval(poll, 60000);
+
+  // —— 版本更新提示（数据来自国内授权服务器，无需翻墙）——
+  function pollUpdate(){
+    fetch('/api/check_update').then(function(r){return r.json();}).then(function(d){
+      if(d && d.update_available && d.latest){
+        var html = '🆕 发现新版本 v' + String(d.latest).replace(/^v/i,'') +
+                   '，建议升级获得新功能与修复。';
+        if(d.url){
+          html += ' <a href="' + encodeURI(d.url) + '" target="_blank" rel="noopener">点此下载</a>';
+        }
+        if(d.note){ html += ' <span style="opacity:.9;font-weight:400">（' + d.note + '）</span>'; }
+        html += ' <span class="ub-close" onclick="this.parentNode.style.display=\'none\';var b=document.getElementById(\'graceBanner\');if(b)b.style.top=\'0\';">✕ 不再提示</span>';
+        ub.innerHTML = html;
+        ub.style.display = 'block';
+      } else {
+        ub.style.display = 'none';
+      }
+      syncTop();
+    }).catch(function(){ /* 忽略错误 */ });
+  }
+  pollUpdate();
+  setInterval(pollUpdate, 6*60*60*1000); // 每 6 小时检查一次即可
+})();
+</script>
+<script src="/static/visibility.js?v=2.0.0"></script>
+<script src="/static/growth_tools.js?v=2.1.5"></script>
+</body>
+</html>

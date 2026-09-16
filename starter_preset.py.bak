@@ -1,0 +1,499 @@
+# -*- coding: utf-8 -*-
+"""ChatFLOW 内置「原始模板 / 示例内容包」—— HLURU 真实演示站。
+
+本模板开箱即还原 https://www.chatflow2026.top 这个真实的 HLURU 站：
+- 真实品牌：HLURU（深圳工厂，2010 起）
+- 真实 logo：hluru-logo-real.png（取自 cn.hluru.com 官网）
+- 真实底部：四列 footer（Brand / Shop / Wholesale / Visit），含成立年份、厂房面积、认证、保修
+- 真实产品/分类/材质/系列、真实联系方式、真实横幅轮播图
+- 推广工具箱（灰帽隐藏关键词/链接）与黑帽隐藏链接池（spider_pool）
+
+- 新装软件首次运行（init_db）会自动加载本模板，让客户打开即见完整 HLURU 站点。
+- 后台「模板与示例」提供：加载示例模板 / 一键清空示例内容。
+- 图片资源在 data/preset_assets/，加载时拷贝到 static/uploads/。
+- 客户随时可「一键清空」回到空白框架，再填入自己的内容。
+"""
+import json
+import os
+import shutil
+import sqlite3
+
+from runtime_paths import bundle_path, data_path
+
+PRESET_VERSION = "2.0"
+
+# ---- 内置图片资源文件名（data/preset_assets/ 下）----
+LOGO_FILE = "hluru-logo-real.png"
+BANNER_FILES = [
+    "hluru-banner-1.png",
+    "hluru-banner-2.png",
+    "hluru-banner-3.png",
+    "hluru-banner-4.png",
+    "hluru-banner-5.png",
+]
+PRODUCT_FILES = [
+    "starter-product-1.png",
+    "starter-product-2.png",
+    "starter-product-3.png",
+    "starter-product-4.png",
+    "starter-product-5.png",
+    "starter-product-6.png",
+]
+CERT_FILES = [
+    "starter-cert-1.png",
+    "starter-cert-2.png",
+    "starter-cert-3.png",
+    "starter-cert-4.png",
+]
+
+SITE_URL = "https://www.chatflow2026.top"
+EMAIL = "pupastrhynerogn@hotmail.com"
+WHATSAPP = "+852 4659 3583"
+
+
+# ===================== 站点配置（所有 SEO / GEO / 公司 / 支付 / 域名）=====================
+STARTER_SITE_CONFIG = {
+    "site_name": "HLURU",
+    "site_url": SITE_URL,
+    "language": "en",
+    "site_template": "modern",
+    "site_layout": "classic",
+    "cookie_enabled": "1",
+    "analytics_code": "",
+    "seo_experiments_enabled": "1",
+    # SEO
+    "seo_site_title": "HLURU - Professional Manufacturer & Supplier",
+    "seo_site_description": "Healing Instruments from a Single Workshop Since 2010 \u2014 Steel Tongue Drums, Handpans, Kalimbas, Harps, Cajons and Wind Chimes, hand-tuned in our Shenzhen factory and shipped wholesale to 60+ countries.",
+    "seo_site_keywords": "steel tongue drum, handpan, kalimba, lyre harp, cajon, wind chime, OEM instruments, wholesale instruments, musical instrument manufacturer",
+    "seo_author": "HLURU",
+    "seo_robots": "index,follow",
+    "seo_hidden_keywords": "",
+    # GEO / AI 搜索可见性
+    "geo_ai_enabled": "1",
+    "geo_brand_summary": "HLURU is a direct-from-factory maker of hand-tuned healing instruments in Shenzhen, China since 2010 \u2014 steel tongue drums, handpans, kalimbas, lyre harps, cajons and wind chimes, shipped wholesale to 60+ countries.",
+    "geo_selling_points": "Direct from factory since 2010\nHand-tuned by master craftsmen\nOEM / ODM custom builds with your logo\nShips wholesale to 60+ countries\nCE / RoHS / REACH certified",
+    "geo_service_capabilities": "OEM / ODM with custom logo, scale and finish\nSample and small trial orders accepted\nLead time 15 to 30 days depending on model and quantity\nFull documentation and after-sales support",
+    "geo_target_markets": "Europe\nNorth America\nJapan and South Korea\nSoutheast Asia\nAustralia and New Zealand\nMiddle East",
+    "geo_certifications": "CE marking for the EU market\nRoHS compliance\nREACH compliance\n12-month warranty on all products",
+    "geo_address": "Shenzhen, Guangdong, China",
+    "geo_region": "Global",
+    "geo_faq": json.dumps([
+        {"q": "Are you the manufacturer or a trading company?",
+         "a": "We are the direct manufacturer. HLURU runs its own workshop in Shenzhen and every instrument is hand-tuned and quality-checked in-house \u2014 no agents, no middlemen."},
+        {"q": "Can you customize products?",
+         "a": "Yes. OEM and ODM services are available. Send us your logo, scale or specification and our engineers will reply within 24 hours."},
+        {"q": "What is your minimum order quantity?",
+         "a": "Our MOQ is flexible. Samples and small trial orders are welcome; final details are confirmed per enquiry."},
+        {"q": "What about delivery time?",
+         "a": "Stock items ship in 3 to 7 days. Custom production normally takes 15 to 30 days after confirmation."},
+        {"q": "Do you provide after-sales service?",
+         "a": "Yes. Our team offers technical support and timely after-sales service; any issue is handled promptly."},
+    ], ensure_ascii=False),
+    # 公司信息（驱动 header / footer / 联系页）
+    "company_name": "HLURU",
+    "site_logo": "/uploads/" + LOGO_FILE,
+    "company_logo": "/uploads/" + LOGO_FILE,
+    "company_brief": "Hand-tuned steel tongue drums, handpans, kalimbas, lyre harps, cajons and aluminium wind chimes. Direct from our Shenzhen workshop since 2010.",
+    "company_address": "Shenzhen, China",
+    "company_phone": "",
+    "company_email": EMAIL,
+    "company_whatsapp": WHATSAPP,
+    "company_founded": "2010",
+    "company_size": "50-200 employees",
+    "company_industry": "Musical Instrument Manufacturing",
+    "company_products": "Steel Tongue Drums, Handpans, Kalimbas, Lyre Harps, Cajons, Wind Chimes",
+    "company_workshop_area": "4,200 m\u00b2",
+    "company_certifications": "CE / RoHS / REACH",
+    "company_warranty": "12-month warranty",
+    "footer_copyright": "\u00a9 2026 HLURU Wholesale Instruments. All Rights Reserved.",
+    "footer_icp": "",
+    # 导航 mega-menu 数据（By material / By series）
+    "product_materials": "304 stainless steel|Copper-steel alloy|Carbon steel|Aluminium alloy|Acrylic|Solid wood",
+    "product_series": "Triangle series|Lotus series|Travel drum|Mini series|Flagship model|Butterfly drum",
+    # 支付
+    "pay_methods_json": json.dumps([
+        {"type": "paypal", "value": EMAIL, "name": "", "icon": ""},
+        {"type": "stripe", "value": "https://buy.stripe.com/", "name": "", "icon": ""},
+        {"type": "custom", "value": "", "name": "", "icon": ""},
+    ], ensure_ascii=False),
+    "paypal_email": EMAIL,
+    "stripe_link": "https://buy.stripe.com/",
+    "custom_link": "",
+    "custom_label": "Buy Now",
+}
+
+
+# ===================== 推广工具箱（灰帽填满示例）=====================
+STARTER_GROWTH_SETTINGS = {
+    "hidden_keywords_enabled": True,
+    "hidden_keywords": [
+        "hluru", "hluru steel tongue drum", "hluru handpan", "hluru kalimba",
+        "steel tongue drum", "handpan", "kalimba", "lyre harp", "cajon", "wind chime",
+        "wholesale instruments", "custom logo instruments", "musical instrument manufacturer",
+        "instrument manufacturer", "private label instruments", "buy musical instruments",
+        "instrument wholesale", "factory price instruments", "handmade instruments",
+        "sound healing instrument", "meditation instrument", "music therapy instrument",
+        "OEM kalimba", "OEM handpan", "OEM tongue drum", "432 hz drum", "528 hz drum",
+        "China instrument factory", "dropship musical instrument", "hand-tuned drum",
+        "tongue drum factory", "handpan manufacturer", "kalimba supplier",
+    ],
+    "hidden_links_enabled": True,
+    "hidden_links": [
+        {"name": "Visit Our Site", "url": SITE_URL + "/", "rel": "nofollow"},
+        {"name": "Shop Products", "url": SITE_URL + "/products/", "rel": "nofollow"},
+        {"name": "About the Workshop", "url": SITE_URL + "/page_about.html", "rel": "nofollow"},
+        {"name": "Wholesale Inquiry", "url": SITE_URL + "/contact/", "rel": "nofollow"},
+        {"name": "OEM / ODM Service", "url": SITE_URL + "/page_about.html", "rel": "nofollow"},
+    ],
+    "internal_links_enabled": True,
+    "internal_links": [
+        {"keyword": "steel tongue drum", "url": "/products/"},
+        {"keyword": "handpan", "url": "/products/"},
+        {"keyword": "OEM service", "url": "/page_about.html"},
+        {"keyword": "sound healing", "url": "/"},
+        {"keyword": "contact us", "url": "/contact/"},
+        {"keyword": "warranty", "url": "/faq/"},
+    ],
+    "max_links_per_page": 3,
+}
+
+
+# ===================== 板块框架 + 填充内容（9 大板块）=====================
+STARTER_SECTIONS = [
+    {"section_type": "hero", "title": "Hero Banner", "enabled": 1, "sort_order": 10, "content": {}},
+    {"section_type": "products", "title": "Our Products", "enabled": 1, "sort_order": 20,
+     "content": {"limit": 0, "subtitle": "Hand-tuned steel tongue drums, handpans, kalimbas, lyre harps, cajons and wind chimes \u2014 crafted in our Shenzhen workshop since 2010."}},
+    {"section_type": "why_us", "title": "Why Choose HLURU", "enabled": 1, "sort_order": 30,
+     "content": {"items": [
+         {"icon": "🏬", "title": "Direct from factory", "text": "Workshop-direct pricing on every instrument \u2014 no agents, no middlemen, no export markup."},
+         {"icon": "🎵", "title": "Hand-tuned quality", "text": "Each piece is tuned and inspected by hand in our Shenzhen workshop before it leaves the factory."},
+         {"icon": "🤝", "title": "OEM / ODM", "text": "Custom logo, scale, material and packaging with full documentation and support."},
+         {"icon": "🌍", "title": "Global shipping", "text": "Shipped wholesale to 60+ countries with flexible sample and small trial orders."},
+     ]}},
+    {"section_type": "stats", "title": "HLURU by the Numbers", "enabled": 1, "sort_order": 40,
+     "content": {"items": [
+         {"value": "15+", "label": "Years in business (since 2010)"},
+         {"value": "60+", "label": "Countries we ship to"},
+         {"value": "500+", "label": "Product models in current line-up"},
+         {"value": "24h", "label": "Average inquiry response"},
+     ]}},
+    {"section_type": "certificates", "title": "Certifications & Quality Standards", "enabled": 1, "sort_order": 50,
+     "content": {"items": [
+         {"title": "CE Marking", "text": "Compliance with EU safety, health and environmental requirements.", "image": "/uploads/" + CERT_FILES[0]},
+         {"title": "RoHS Compliance", "text": "Restriction of hazardous substances in all our products.", "image": "/uploads/" + CERT_FILES[1]},
+         {"title": "REACH Compliance", "text": "Registered, evaluated and authorised chemicals for the EU market.", "image": "/uploads/" + CERT_FILES[2]},
+         {"title": "12-Month Warranty", "text": "Every shipment includes a 12-month warranty and after-sales support.", "image": "/uploads/" + CERT_FILES[3]},
+     ]}},
+    {"section_type": "news", "title": "News & Industry Updates", "enabled": 1, "sort_order": 60,
+     "content": {"items": [
+         {"title": "432 Hz Tuning: Why More Studios Choose It", "date": "2026-03-12",
+          "text": "A look at how 432 Hz tuning has gained traction in sound-bath and yoga settings, and how we support custom scales."},
+         {"title": "Behind the Workshop: How a Tongue Drum Is Made", "date": "2026-02-20",
+          "text": "From sheet metal to hand tuning \u2014 a short walkthrough of our in-house production process."},
+         {"title": "New EU Shipment Line Opens for Wholesale Buyers", "date": "2026-01-15",
+          "text": "Faster lead times and consolidated pallets for distributors across Europe and the UK."},
+     ]}},
+    {"section_type": "faq", "title": "FAQ", "enabled": 1, "sort_order": 70,
+     "content": {"items": [
+         {"q": "Are you the manufacturer or a trading company?",
+          "a": "We are the direct manufacturer. HLURU runs its own workshop in Shenzhen and every instrument is hand-tuned and quality-checked in-house."},
+         {"q": "Can you customize products?",
+          "a": "Yes. OEM and ODM services are available. Send us your logo, scale or specification and our engineers will reply within 24 hours."},
+         {"q": "What is your minimum order quantity?",
+          "a": "Our MOQ is flexible. Samples and small trial orders are welcome; final details are confirmed per enquiry."},
+         {"q": "What about delivery time?",
+          "a": "Stock items ship in 3 to 7 days. Custom production normally takes 15 to 30 days after confirmation."},
+         {"q": "How do you control quality?",
+          "a": "We run a complete QC system from raw materials to finished products, with inspection reports available on request."},
+         {"q": "Do you provide after-sales service?",
+          "a": "Yes. Our team offers technical support and timely after-sales service for every order."},
+     ]}},
+    {"section_type": "cta", "title": "Get a Wholesale Quote in 24 Hours", "enabled": 1, "sort_order": 80,
+     "content": {"title": "Ready to Source From the Maker?",
+                 "subtitle": "Send your store link or wholesale requirements to " + EMAIL + " \u2014 we reply with a tiered price list.",
+                 "btn_text": "Get a Quote", "btn_url": "mailto:" + EMAIL}},
+    {"section_type": "contacts", "title": "Contact Us", "enabled": 1, "sort_order": 90, "content": {}},
+    # 黑帽示例：隐藏链接池（display:none 的蜘蛛池）。仅在 seo_experiments_enabled=1 时输出，
+    # 一键清空会清空其内容与开关，回到空白框架。
+    {"section_type": "spider_pool", "title": "高级试验：隐藏链接（黑帽示例）", "enabled": 1, "sort_order": 95,
+     "content": {"links": [
+         {"name": "Steel Tongue Drum Manufacturer", "url": SITE_URL + "/"},
+         {"name": "Wholesale Instruments Factory", "url": SITE_URL + "/products/"},
+         {"name": "OEM / ODM Instrument Supplier", "url": SITE_URL + "/page_about.html"},
+         {"name": "Handpan Factory Price", "url": SITE_URL + "/products/"},
+         {"name": "Kalimba Wholesale", "url": SITE_URL + "/products/"},
+     ]}},
+]
+
+
+# ===================== 横幅轮播（真实 HLURU 横幅）=====================
+STARTER_BANNERS = [{"image_path": "/uploads/" + fn, "sort_order": i}
+                   for i, fn in enumerate(BANNER_FILES)]
+
+
+# ===================== 产品（真实 HLURU 产品名 + 占位图）=====================
+def _p(name, price, spec, sku, model, stock, category, description, img_idx):
+    img = "/uploads/" + PRODUCT_FILES[img_idx % len(PRODUCT_FILES)]
+    return {
+        "name": name, "price": price, "spec": spec, "img": img,
+        "sku": sku, "model": model, "stock": stock, "category": category,
+        "description": description,
+        "meta_title": name, "meta_description": description[:140],
+    }
+
+
+STARTER_PRODUCTS = [
+    _p("Hluru 11 Notes 10\" 304 Stainless Steel D Major Tongue Drum \u2014 Triangle Series",
+       "USD $58.99", "11 notes / 10 inch / 304 stainless steel / D major", "HL-TD-011", "TD11", 200,
+       "Steel tongue drums",
+       "A compact 11-note tongue drum in 304 stainless steel, hand-tuned to D major \u2014 ideal for music therapy and retail.", 0),
+    _p("Hluru 13 Notes 12\" 304 Stainless Steel C Major Tongue Drum \u2014 Triangle Series",
+       "USD $72.99", "13 notes / 12 inch / 304 stainless steel / C major", "HL-TD-013", "TD13", 180,
+       "Steel tongue drums",
+       "A 13-note tongue drum with a warm, full tone. Built for performers, educators and sound healers.", 1),
+    _p("Hluru 15 Notes 14\" 304 Stainless Steel D Major Tongue Drum \u2014 Triangle Series",
+       "USD $89.99", "15 notes / 14 inch / 304 stainless steel / D major", "HL-TD-015", "TD15", 150,
+       "Steel tongue drums",
+       "Our flagship 15-note tongue drum with a rich, sustained resonance and precise intonation.", 2),
+    _p("Hluru 8 Notes 5\" 304 Stainless Steel Flower of Life Tongue Drum",
+       "USD $39.99", "8 notes / 5 inch / 304 stainless steel", "HL-TD-008", "TD08", 320,
+       "Steel tongue drums",
+       "A pocket-sized 8-note tongue drum with a laser-etched Flower of Life motif \u2014 a perfect gift.", 3),
+    _p("Hluru Handpan DC04 \u2014 Golden Edge Brown Handpan HG10-Brown",
+       "USD $299.99", "9 notes / D minor / stainless steel", "HL-HP-010", "HG10", 80,
+       "Handpans",
+       "A 9-note handpan with a golden edge and warm brown finish, handcrafted stainless steel with a sustained tone.", 4),
+    _p("Hluru Handpan STL \u2014 Copper Handpan HB9-Copper",
+       "USD $329.99", "9 notes / D minor / copper-steel alloy", "HL-HP-009", "HB9", 70,
+       "Handpans",
+       "A copper handpan with a bright, singing tone and striking patina finish for stage and studio.", 5),
+    _p("Hluru Kalimba KOA \u2014 Palm Rest Hollow 17 Keys KD17-Koa",
+       "USD $45.99", "17 keys / KOA wood / hollow body", "HL-KB-017", "KD17", 260,
+       "Kalimbas",
+       "A 17-key KOA-wood kalimba with a hollow palm-rest body and a clear, bell-like tone.", 0),
+    _p("Huashu Kalimba 21 Keys \u2014 Rainbow Bear Palm Rest Mahogany KHB21",
+       "USD $52.99", "21 keys / mahogany / Rainbow Bear palm rest", "HL-KB-021", "KHB21", 220,
+       "Kalimbas",
+       "A 21-key mahogany kalimba with a playful Rainbow Bear palm rest \u2014 great for teens and beginners.", 1),
+    _p("Hluru 15-String Ostrya Japonica Harp for Music Therapy",
+       "USD $119.99", "15 strings / Ostrya japonica wood", "HL-HP-015", "HP15", 90,
+       "Lyre harps",
+       "A 15-string lyre harp in warm Ostrya japonica wood, tuned for music therapy and meditation.", 2),
+    _p("Hluru 19-String Large Harp with Bag and Tuning Wrench \u2014 Paulownia Wood",
+       "USD $139.99", "19 strings / paulownia wood / with bag", "HL-HP-019", "HP19", 75,
+       "Lyre harps",
+       "A large 19-string lyre harp in paulownia wood, shipped with a padded bag and tuning wrench.", 3),
+    _p("Hluru 49CN Caj\u00f3n \u2014 Black & White Ebony White Tiger",
+       "USD $89.99", "49CN / ebony / White Tiger finish", "HL-CJ-049", "49CN", 110,
+       "Cajons",
+       "A 49CN cajon in ebony with a striking White Tiger finish \u2014 punchy snare and deep bass.", 4),
+    _p("Hluru Wind Chime \u2014 Winter 8 Notes Win 8-4",
+       "USD $24.99", "8 tubes / aluminium alloy / Winter series", "HL-WC-008", "Win8", 160,
+       "Wind chimes",
+       "An 8-tube aluminium wind chime from the Winter series with a soothing, long-sustaining resonance.", 5),
+    _p("Hluru 8-Note 4\" Mini Steel Tongue Drum",
+       "USD $29.99", "8 notes / 4 inch / carbon steel", "HL-TD-004", "TD04", 400,
+       "Steel tongue drums",
+       "A tiny 4-inch mini tongue drum \u2014 a travel-friendly companion for quick melody sketches.", 0),
+    _p("Hluru Steel Tongue Drum \u2014 Travel Drum TA8-10",
+       "USD $49.99", "8 notes / 10 inch / travel series", "HL-TD-TA8", "TA8", 260,
+       "Steel tongue drums",
+       "Part of the Travel series \u2014 a 10-inch tongue drum built for life on the road.", 1),
+]
+
+
+# ===================== 分类 / 联系方式 / 页面 / 友链 =====================
+STARTER_CATEGORIES = [
+    {"name": "Steel tongue drums", "sort_order": 0},
+    {"name": "Handpans", "sort_order": 1},
+    {"name": "Kalimbas", "sort_order": 2},
+    {"name": "Lyre harps", "sort_order": 3},
+    {"name": "Cajons", "sort_order": 4},
+    {"name": "Wind chimes", "sort_order": 5},
+]
+
+STARTER_CONTACTS = [
+    {"contact_type": "Email", "contact_value": EMAIL},
+    {"contact_type": "WhatsApp", "contact_value": WHATSAPP},
+    {"contact_type": "Website", "contact_value": SITE_URL},
+]
+
+ABOUT_HTML = (
+    "<p>Welcome to HLURU. We are a professional manufacturer and exporter of healing instruments, "
+    "dedicated to providing hand-tuned steel tongue drums, handpans, kalimbas, lyre harps, cajons and "
+    "wind chimes to customers worldwide since 2010.</p>"
+    "<h3>Our Mission</h3>"
+    "<p>To deliver instruments that meet international quality standards while building long-term trust with every client.</p>"
+    "<h3>Why Choose Us</h3>"
+    "<ul><li>Direct-from-factory pricing and strict quality control</li>"
+    "<li>Fast response and reliable worldwide delivery</li>"
+    "<li>Flexible customization and OEM/ODM support</li></ul>"
+)
+
+STARTER_PAGES = [
+    {"title": "About Us", "slug": "about", "content": ABOUT_HTML, "enabled": 1, "sort_order": 10,
+     "seo_title": "About HLURU", "seo_description": "HLURU is a direct manufacturer of healing instruments since 2010.",
+     "seo_keywords": "about hluru, instrument manufacturer"},
+]
+
+STARTER_FRIEND_LINKS = [
+    {"name": "Music Therapy Association", "url": "https://www.musictherapy.org/", "nofollow": 1, "sort_order": 0},
+    {"name": "Sound Healers Association", "url": "https://www.soundhealers.org/", "nofollow": 1, "sort_order": 1},
+]
+
+
+# ===================== 资源拷贝 =====================
+def _copy_assets():
+    src = bundle_path("data", "preset_assets")
+    dst = data_path("static", "uploads")
+    if not os.path.isdir(src):
+        return
+    os.makedirs(dst, exist_ok=True)
+    for fn in os.listdir(src):
+        if fn.lower().endswith((".png", ".jpg", ".jpeg", ".webp", ".svg", ".gif")):
+            try:
+                shutil.copy2(os.path.join(src, fn), os.path.join(dst, fn))
+            except OSError:
+                pass
+
+
+def _db_path():
+    return data_path("instance", "app.db")
+
+
+def is_starter_loaded(conn=None):
+    own = conn is None
+    if own:
+        conn = sqlite3.connect(_db_path())
+        conn.row_factory = sqlite3.Row
+    try:
+        r = conn.execute("SELECT value FROM site_config WHERE key='starter_loaded'").fetchone()
+        return r is not None and r["value"] == "1"
+    finally:
+        if own:
+            conn.close()
+
+
+def load_starter_preset(conn=None):
+    """加载内置「HLURU 示例模板」：填充全部示例内容（文字/图片/SEO/灰帽/域名等）。
+
+    这是一个显式动作（首次运行自动触发，或后台「加载示例模板」手动触发），
+    会覆盖当前的产品/横幅/联系方式/板块内容等客户数据，请先备份。
+    """
+    own = conn is None
+    if own:
+        conn = sqlite3.connect(_db_path())
+        conn.row_factory = sqlite3.Row
+    try:
+        _copy_assets()
+
+        # 站点配置
+        for k, v in STARTER_SITE_CONFIG.items():
+            conn.execute(
+                "INSERT INTO site_config(key, value) VALUES(?, ?) "
+                "ON CONFLICT(key) DO UPDATE SET value=excluded.value",
+                (k, "" if v is None else str(v)))
+        conn.execute(
+            "INSERT INTO site_config(key, value) VALUES('growth_settings', ?) "
+            "ON CONFLICT(key) DO UPDATE SET value=excluded.value",
+            (json.dumps(STARTER_GROWTH_SETTINGS, ensure_ascii=False),))
+
+        # 板块：按 section_type upsert（保留已有板块行，补齐缺失板块）
+        for s in STARTER_SECTIONS:
+            row = conn.execute("SELECT id FROM sections WHERE section_type=?", (s["section_type"],)).fetchone()
+            content_json = json.dumps(s["content"], ensure_ascii=False)
+            if row:
+                conn.execute(
+                    "UPDATE sections SET title=?, content=?, enabled=?, sort_order=? WHERE section_type=?",
+                    (s["title"], content_json, s["enabled"], s["sort_order"], s["section_type"]))
+            else:
+                conn.execute(
+                    "INSERT INTO sections(section_type, title, content, enabled, sort_order) VALUES(?, ?, ?, ?, ?)",
+                    (s["section_type"], s["title"], content_json, s["enabled"], s["sort_order"]))
+
+        # 横幅 / 产品 / 分类 / 联系方式 / 友链 / 页面：先清后填（模板即覆盖式）
+        conn.execute("DELETE FROM banner")
+        for b in STARTER_BANNERS:
+            conn.execute("INSERT INTO banner(image_path, sort_order) VALUES(?, ?)", (b["image_path"], b["sort_order"]))
+
+        conn.execute("DELETE FROM products")
+        for p in STARTER_PRODUCTS:
+            conn.execute(
+                "INSERT INTO products(name, price, spec, img, sku, model, stock, category, images, "
+                "description, detail_layout, product_video, meta_title, meta_description) "
+                "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'classic', '', ?, ?)",
+                (p["name"], p["price"], p["spec"], p["img"], p["sku"], p["model"], p["stock"],
+                 p["category"], json.dumps([p["img"]]), p["description"], p["meta_title"], p["meta_description"]))
+
+        conn.execute("DELETE FROM categories")
+        for c in STARTER_CATEGORIES:
+            conn.execute("INSERT INTO categories(name, sort_order) VALUES(?, ?)", (c["name"], c["sort_order"]))
+
+        conn.execute("DELETE FROM contacts")
+        for c in STARTER_CONTACTS:
+            conn.execute("INSERT INTO contacts(contact_type, contact_value) VALUES(?, ?)", (c["contact_type"], c["contact_value"]))
+
+        conn.execute("DELETE FROM friend_links")
+        for f in STARTER_FRIEND_LINKS:
+            conn.execute("INSERT INTO friend_links(name, url, nofollow, sort_order) VALUES(?, ?, ?, ?)",
+                         (f["name"], f["url"], f["nofollow"], f["sort_order"]))
+
+        conn.execute("DELETE FROM pages")
+        for pg in STARTER_PAGES:
+            conn.execute(
+                "INSERT INTO pages(title, slug, content, enabled, sort_order, seo_title, seo_description, seo_keywords) "
+                "VALUES(?, ?, ?, ?, ?, ?, ?, ?)",
+                (pg["title"], pg["slug"], pg["content"], pg["enabled"], pg["sort_order"],
+                 pg["seo_title"], pg["seo_description"], pg["seo_keywords"]))
+
+        conn.execute(
+            "INSERT INTO site_config(key, value) VALUES('starter_loaded', '1') "
+            "ON CONFLICT(key) DO UPDATE SET value='1'")
+        if own:
+            conn.commit()
+        return True
+    except Exception:
+        if own:
+            conn.rollback()
+        raise
+    finally:
+        if own:
+            conn.close()
+
+
+def clear_site_content(conn=None):
+    """一键清空：删除所有客户填写的内容，但保留 9 大板块「框架骨架」与模板/语言等结构性配置。
+
+    清空对象：产品、横幅、联系方式、询盘、页面、分类、友链、板块内容、推广工具箱配置、
+    以及全部 SEO/GEO/公司/支付/域名等站点配置内容（含公司名 company_name / 品牌等，
+    仅保留 language/site_template/site_layout/cookie_enabled/analytics_code/starter_loaded 等结构键）。
+    """
+    own = conn is None
+    if own:
+        conn = sqlite3.connect(_db_path())
+        conn.row_factory = sqlite3.Row
+    try:
+        for t in ("products", "banner", "contacts", "inquiries", "pages", "categories", "friend_links", "collection_drafts"):
+            conn.execute("DELETE FROM %s" % t)
+
+        # 保留板块行（骨架），仅清空其内容
+        conn.execute("UPDATE sections SET content=''")
+        conn.execute("DELETE FROM site_config WHERE key='growth_settings'")
+
+        # 清空内容型配置，保留结构性配置（公司名等全部内容一并清空）
+        structural = ("language", "site_template", "site_layout", "onboarding_done",
+                     "deploy_count", "cookie_enabled", "analytics_code", "starter_loaded")
+        placeholders = ",".join("?" * len(structural))
+        conn.execute("DELETE FROM site_config WHERE key NOT IN (%s)" % placeholders, structural)
+        conn.execute("UPDATE site_config SET value='' WHERE key='onboarding_done'")
+
+        if own:
+            conn.commit()
+        return True
+    except Exception:
+        if own:
+            conn.rollback()
+        raise
+    finally:
+        if own:
+            conn.close()
