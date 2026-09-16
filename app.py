@@ -3363,7 +3363,17 @@ def deploy():
             'notice': notice,
         })
     except Exception as e:
-        return jsonify({'error': '部署出错：' + str(e)}), 500
+        # 不再用统一文案掩盖真实异常：带上异常类型，并把完整堆栈写进
+        # startup.log（Win=%LOCALAPPDATA%\ChatFLOW\startup.log，Mac=~/Library/...），
+        # 这样部署失败时能拿到“到底是哪一步、什么错”，而不是笼统的“部署出错”。
+        import traceback as _tb
+        _stack = _tb.format_exc()
+        try:
+            _startup_log('[deploy] FAILED stage=%s\n%s' % (type(e).__name__, _stack))
+        except Exception:
+            pass
+        print('[deploy] EXCEPTION %s: %s\n%s' % (type(e).__name__, e, _stack), flush=True)
+        return jsonify({'error': '部署出错（%s）：%s' % (type(e).__name__, str(e))}), 500
 
 
 def _write_cname(output_dir, domain):
