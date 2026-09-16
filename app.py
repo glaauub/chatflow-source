@@ -3076,22 +3076,49 @@ def run_git(site_dir, *args, timeout=120, auth_token=''):
 
 
 def _gh_api(url, token, method='GET', payload=None, timeout=30):
-    """调用 GitHub API，返回 (ok, data_or_error_msg)。timeout 可缩短避免登录时久等。"""
+    """调用 GitHub API，返回 (ok, data_or_error_msg)。
+
+    稳健性修复（修复「部署出错：IncompleteRead」）：
+    - 显式捕获 http.client.IncompleteRead / HTTPException——旧代码只捕获
+      HTTPError/URLError，IncompleteRead 会漏网并直接炸成部署错误。
+    - 对「响应被截断 / 网络抖动 / 限流(429/5xx)」自动重试。
+    - 走系统代理失败时自动回退直连，绕过会截断 GitHub API 响应的代理
+      （IncompleteRead 的常见成因：代理转发到一半就把连接断了）。
+    - 加 Connection: close 禁用 keep-alive，规避代理复用连接时的半包截断。
+    """
+    import time, http.client
     data = json.dumps(payload).encode() if payload is not None else None
     req = Request(url, data=data, method=method)
     req.add_header('Authorization', 'token %s' % token)
     req.add_header('Accept', 'application/vnd.github+json')
+    req.add_header('Connection', 'close')
     if data is not None:
         req.add_header('Content-Type', 'application/json')
-    try:
-        with urlopen(req, timeout=timeout, context=_SSL_CTX) as resp:
-            body = resp.read().decode('utf-8', 'ignore')
-            return True, json.loads(body) if body else {}
-    except HTTPError as e:
-        body = e.read().decode('utf-8', 'ignore')[:200]
-        return False, 'HTTP %s: %s' % (e.code, body)
-    except URLError as e:
-        return False, '网络错误: %s' % e.reason
+    # None=默认 opener（沿用系统代理）；备选=强制直连（绕过截断响应的代理）
+    openers = [None, urllib.request.build_opener(urllib.request.ProxyHandler({}))]
+    last_err = '网络错误'
+    for attempt in range(3):
+        for opener in openers:
+            call = opener if opener is not None else urlopen
+            try:
+                with call(req, timeout=timeout, context=_SSL_CTX) as resp:
+                    body = resp.read().decode('utf-8', 'ignore')
+                    return True, json.loads(body) if body else {}
+            except HTTPError as e:
+                body = e.read().decode('utf-8', 'ignore')[:300]
+                if e.code in (429, 500, 502, 503, 504):
+                    last_err = 'HTTP %s: %s' % (e.code, body)
+                    break  # 换直连重试
+                return False, 'HTTP %s: %s' % (e.code, body)
+            except (URLError, http.client.IncompleteRead, http.client.HTTPException) as e:
+                last_err = '网络错误: %s' % (getattr(e, 'reason', None) or e)
+                continue
+            except Exception as e:
+                last_err = str(e)
+                continue
+        if attempt < 2:
+            time.sleep(min(1.0 * (attempt + 1), 4))
+    return False, last_err
 
 
 def _github_reachable(timeout=8):
