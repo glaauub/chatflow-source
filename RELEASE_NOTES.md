@@ -1,3 +1,9 @@
+# ChatFLOW Windows 2.1.8 修复版
+
+- 修复部分电脑登录时报 curl 不认识 `--retry-all-errors`，自动适配旧版 curl。
+- curl 不可用时使用系统 HTTPS 回退路径校验 GitHub 账号。
+- 延续 Windows 2.1.7 的换仓库自动更新 SEO 正式网址和站点链接修复。
+
 # ChatFLOW Windows 2.1.7 修复版
 
 - 切换 GitHub 仓库时，自动更新 SEO 的正式网址、生成页的 canonical 和 sitemap、部署结果链接。

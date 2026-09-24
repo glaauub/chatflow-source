@@ -29,7 +29,7 @@ with tempfile.TemporaryDirectory(prefix='ChatFLOW upgrade ') as folder:
     server.remembered_login.save('existing-account', 'test-token-only')
     login_path = profile / 'instance/remembered_login.enc'
     saved_login = login_path.read_bytes()
-    installer = Path('dist/ChatFLOW-Windows-x64-v2.1.7-Setup.exe').resolve()
+    installer = Path('dist/ChatFLOW-Windows-x64-v2.1.8-Setup.exe').resolve()
     target = root / 'installed application'
     env = dict(os.environ, PYTHONUTF8='1', PYTHONIOENCODING='utf-8')
     env['PATH'] = os.path.join(env.get('SystemRoot', r'C:\Windows'), 'System32')

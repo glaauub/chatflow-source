@@ -10,5 +10,5 @@ with tempfile.TemporaryDirectory(prefix='chatflow-local-ai-check-') as data:
         if status.exists(): print(status.read_text(encoding='utf-8'))
         raise SystemExit('Frozen local AI self-test failed')
     report = json.loads(status.read_text(encoding='utf-8'))
-    assert report['version'] == '2.1.7' and report['ok'] and report['local_only'], report
+    assert report['version'] == '2.1.8' and report['ok'] and report['local_only'], report
     print(json.dumps(report))

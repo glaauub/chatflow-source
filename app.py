@@ -86,7 +86,7 @@ from runtime_paths import BUNDLE_DIR, DATA_DIR, ensure_data_dirs
 import license_client
 
 # 当前客户端版本号（与 chatflow.spec 的 CFBundleShortVersionString 保持一致）
-APP_VERSION = '2.1.7'
+APP_VERSION = '2.1.8'
 
 # 源码运行=源码目录；打包运行=可写数据目录（上传图片/生成站点随数据目录走）
 BASE_DIR = DATA_DIR
@@ -3165,15 +3165,17 @@ def _gh_api(url, token, method='GET', payload=None, timeout=30):
 
     # —— 路径 1：curl（首选，抗代理截断）——
     try:
-        subprocess.run(['curl', '--version'], capture_output=True, timeout=10)
-        use_curl = True
+        probe = subprocess.run(['curl', '--retry-all-errors', '--version'], capture_output=True, timeout=10)
+        supports_retry_all = probe.returncode == 0
+        old_curl = (b'--retry-all-errors' in probe.stderr and b'unknown' in probe.stderr.lower())
+        use_curl = supports_retry_all or old_curl
     except Exception:
         use_curl = False
 
     if use_curl:
         cmd = [
             'curl', '-sS', '-L',
-            '--retry', '6', '--retry-all-errors', '--retry-delay', '1', '--retry-max-time', '180',
+            '--retry', '6', '--retry-delay', '1', '--retry-max-time', '180',
             '--connect-timeout', '20', '--max-time', str(timeout + 120),
             '-H', 'Authorization: token %s' % token,
             '-H', 'Accept: application/vnd.github+json',
@@ -3182,6 +3184,8 @@ def _gh_api(url, token, method='GET', payload=None, timeout=30):
             '-w', '\n%{http_code}',
             url,
         ]
+        if supports_retry_all:
+            cmd.insert(5, '--retry-all-errors')
         tf = None
         if payload is not None:
             data = json.dumps(payload)
@@ -3237,13 +3241,15 @@ def _gh_api(url, token, method='GET', payload=None, timeout=30):
     req.add_header('Connection', 'close')
     if data is not None:
         req.add_header('Content-Type', 'application/json')
-    openers = [None, urllib.request.build_opener(urllib.request.ProxyHandler({}))]
+    openers = [None, urllib.request.build_opener(urllib.request.ProxyHandler({}),
+                                                urllib.request.HTTPSHandler(context=_SSL_CTX))]
     last_err = '网络错误'
     for attempt in range(3):
         for opener in openers:
-            call = opener if opener is not None else urlopen
             try:
-                with call(req, timeout=timeout, context=_SSL_CTX) as resp:
+                call = (lambda: opener.open(req, timeout=timeout)) if opener is not None else \
+                       (lambda: urlopen(req, timeout=timeout, context=_SSL_CTX))
+                with call() as resp:
                     body = resp.read().decode('utf-8', 'ignore')
                     return True, json.loads(body) if body else {}
             except HTTPError as e:
