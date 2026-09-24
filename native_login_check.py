@@ -30,21 +30,28 @@ def configure(app, license_client, namespace):
         return response
     def check(window):
         report = {'ok':False,'phase':phase}
+        def stage(name):
+            report['stage'] = name
+            (root/('login-'+phase+'.json')).write_text(json.dumps(report),encoding='utf-8')
+        stage('waiting for window')
         try:
             assert window.events.shown.wait(30) and window.events.loaded.wait(30)
+            stage('window loaded')
             if phase in ('write','temporary'):
                 assert window.get_current_url().endswith('/login'), window.get_current_url()
                 # Return across the JS bridge before navigating away; otherwise
                 # WebView2 can discard the pending evaluate_js response.
-                window.evaluate_js("document.querySelector('[name=username]').value='gui-fixture'; document.querySelector('[name=token]').value='gui-fixture-not-a-real-token'; document.querySelector('[name=remember]').checked=" + ('true' if phase=='write' else 'false') + "; setTimeout(()=>document.querySelector('form').requestSubmit(),100); null;")
+                window.run_js("document.querySelector('[name=username]').value='gui-fixture'; document.querySelector('[name=token]').value='gui-fixture-not-a-real-token'; document.querySelector('[name=remember]').checked=" + ('true' if phase=='write' else 'false') + "; setTimeout(()=>document.querySelector('form').requestSubmit(),100); null;")
             elif phase == 'logout':
                 assert window.get_current_url().endswith('/admin'), window.get_current_url()
-                window.evaluate_js("setTimeout(()=>document.querySelector('form[action=\"/logout\"]').requestSubmit(),100); null;")
+                window.run_js("setTimeout(()=>document.querySelector('form[action=\"/logout\"]').requestSubmit(),100); null;")
+            stage('navigation submitted')
             expected = '/admin' if phase in ('write','restore','temporary') else '/login'
             deadline=time.monotonic()+30
             while not window.get_current_url().endswith(expected):
                 if time.monotonic()>deadline:raise RuntimeError('Expected '+expected)
                 time.sleep(.2)
+            stage('destination reached')
             # Exercise a normal close; remembered credentials belong to the
             # application and do not depend on WebView profile persistence.
             time.sleep(3)
@@ -53,7 +60,7 @@ def configure(app, license_client, namespace):
             report['error']=type(error).__name__+': '+str(error)
             report['current_url']=window.get_current_url()
             try:
-                report['dom']=window.evaluate_js("({url:location.href,events:window.__loginEvents,form:document.querySelector('form[action=\"/logout\"]')?.outerHTML})")
+                report['dom']=window.run_js("({url:location.href,events:window.__loginEvents,form:document.querySelector('form[action=\"/logout\"]')?.outerHTML})")
             except Exception:
                 pass
         finally:
