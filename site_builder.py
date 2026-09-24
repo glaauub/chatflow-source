@@ -4012,11 +4012,20 @@ build_product_page_html = _promotion_page(lambda *a, **kw: 'product_%s.html' % (
 build_page_html = _promotion_page(lambda *a, **kw: 'page_%s.html' % (a[0] if a else kw['pg'])['slug'])(build_page_html)
 
 
+def _remove_readonly_output(function, path, exc_info):
+    # Git object files are read-only on Windows; retry only that permission case.
+    if os.name != 'nt' or not isinstance(exc_info[1], PermissionError):
+        raise exc_info[1]
+    import stat
+    os.chmod(path, stat.S_IWRITE | stat.S_IREAD)
+    function(path)
+
+
 def generate_site_files(site_name='My Export Site', template_id='business'):
     """清空并重建 output_site，生成首页 + 产品详情页 + 联系页 + 自定义页面 + sitemap/robots"""
     tpl = get_template(template_id)
     if os.path.exists(OUTPUT_DIR):
-        shutil.rmtree(OUTPUT_DIR)
+        shutil.rmtree(OUTPUT_DIR, onerror=_remove_readonly_output)
     os.makedirs(os.path.join(OUTPUT_DIR, 'static', 'uploads'), exist_ok=True)
 
     with open(os.path.join(OUTPUT_DIR, 'index.html'), 'w', encoding='utf-8') as f:

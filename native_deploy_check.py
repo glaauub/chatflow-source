@@ -7,6 +7,8 @@ import tempfile
 
 
 def run(server):
+    import site_builder as builder
+    saved_builder_output = builder.OUTPUT_DIR
     saved = {name: getattr(server, name) for name in ('OUTPUT_DIR', 'run_git', 'get_config', 'ensure_github_repo', 'enable_github_pages', 'save_version')}
     license_check = server.license_client.check_license
     original = server.run_git
@@ -21,6 +23,7 @@ def run(server):
                 raise RuntimeError(first.stderr)
             output = Path(folder, 'website'); output.mkdir()
             server.OUTPUT_DIR = str(output)
+            builder.OUTPUT_DIR = str(output)
             server.get_config = lambda *args: ''
             server.ensure_github_repo = lambda *args: (True, 'test repository', False)
             server.enable_github_pages = lambda *args: (True, 'test pages')
@@ -35,7 +38,7 @@ def run(server):
             with client.session_transaction() as session:
                 session['github_user'] = 'test-account'; session['github_token'] = 'test-only'
             for revision in (1, 2):
-                if (output / '.git').exists(): (output / '.git').rename(Path(folder, 'previous.git'))
+                builder.generate_site_files('Deployment check', 'business')
                 (output / 'index.html').write_text('Product revision %d' % revision, encoding='utf-8')
                 (output / '产品.txt').write_text('商品图片与描述', encoding='utf-8')
                 (output / 'chatflow-build.json').write_text(json.dumps({'build_id': str(revision)}), encoding='utf-8')
@@ -50,5 +53,6 @@ def run(server):
             if result.returncode or not result.stdout.strip(): raise RuntimeError('Bundled Git HTTPS failed: ' + result.stderr)
         return {'ok': True, 'first_publish': True, 'republish': True, 'history_preserved': True, 'https': True}
     finally:
+        builder.OUTPUT_DIR = saved_builder_output
         for name, value in saved.items(): setattr(server, name, value)
         server.license_client.check_license = license_check

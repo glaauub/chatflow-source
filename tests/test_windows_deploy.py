@@ -7,6 +7,7 @@ from unittest.mock import patch
 
 os.environ.setdefault('CF_DATA_DIR', tempfile.mkdtemp(prefix='chatflow-deploy-test-'))
 import app as server
+import site_builder as builder
 
 class DeploymentTests(unittest.TestCase):
     def test_republish_existing_repo_after_regenerating_output(self):
@@ -32,10 +33,10 @@ class DeploymentTests(unittest.TestCase):
                  patch.object(server, 'ensure_github_repo', return_value=(True, 'exists', False)), \
                  patch.object(server, 'enable_github_pages', return_value=(True, 'ok')), \
                  patch.object(server, 'save_version', return_value=1), \
-                 patch.object(server, 'run_git', side_effect=local_git):
+                 patch.object(server, 'run_git', side_effect=local_git), \
+                 patch.object(builder, 'OUTPUT_DIR', str(output)):
                 for number in (1, 2):
-                    if (output / '.git').exists():
-                        (output / '.git').rename(Path(folder, 'previous.git'))
+                    builder.generate_site_files('Deployment test', 'business')
                     (output / 'index.html').write_text('Product revision %d' % number, encoding='utf-8')
                     (output / 'chatflow-build.json').write_text(json.dumps({'build_id': str(number)}), encoding='utf-8')
                     response = client.post('/api/deploy', json={'repo': 'test-site'})
