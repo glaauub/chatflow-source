@@ -6,7 +6,7 @@ import tempfile
 import sys
 from pathlib import Path
 
-binary = Path('dist/ChatFLOW/ChatFLOW.exe') if os.name == 'nt' else Path('dist/ChatFLOW.app/Contents/MacOS/ChatFLOW')
+binary = Path(os.environ['CF_TEST_BINARY']) if os.environ.get('CF_TEST_BINARY') else (Path('dist/ChatFLOW/ChatFLOW.exe') if os.name == 'nt' else Path('dist/ChatFLOW.app/Contents/MacOS/ChatFLOW'))
 with tempfile.TemporaryDirectory(prefix='chatflow-login-check-', ignore_cleanup_errors=True) as data:
     for phase in ('write','restore','logout','cleared','temporary','temporary-cleared'):
         env = dict(os.environ,CF_DATA_DIR=data,CF_NO_OPEN='1',CF_LOGIN_CHECK_PHASE=phase,PYTHONIOENCODING='utf-8')

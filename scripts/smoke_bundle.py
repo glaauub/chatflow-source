@@ -8,7 +8,7 @@ with tempfile.TemporaryDirectory(prefix='chatflow-bundle-check-') as data:
     status=Path(data,'self-test.json')
     if result.returncode or not status.exists(): raise SystemExit('Frozen binary self-test failed')
     report=json.loads(status.read_text())
-    assert report['version']=='2.1.5' and report['ok'],report
+    assert report['version']=='2.1.6' and report['ok'],report
     assert report['license_server_tls'],report
     assert report['architecture']==platform.machine(),report
     print(json.dumps(report))

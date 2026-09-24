@@ -54,11 +54,11 @@ if sys.platform == 'win32':
     # 捆绑便携 Git（MinGit），让「一键部署」在【未安装 Git for Windows】的干净
     # Windows 上也能工作。否则 subprocess.run(["git", ...]) 会抛
     # FileNotFoundError [WinError 2]。CI 在打包前会把 MinGit 下载到 PortableGit/。
-    if os.path.isdir('PortableGit'):
+    if os.path.isfile('PortableGit/cmd/git.exe') and os.path.isfile('PortableGit/mingw64/libexec/git-core/git-remote-https.exe'):
         datas.append(('PortableGit', 'PortableGit'))
         print('bundle PortableGit (self-contained deploy):', os.path.abspath('PortableGit'))
     else:
-        print('WARNING: PortableGit/ 不存在 —— 部署将依赖系统已装的 Git for Windows。')
+        raise RuntimeError('Missing complete PortableGit runtime; refusing to build a broken Windows package')
 
 # 需额外收集进冻结包的二进制（Windows 下会追加 WebView2Loader.dll）
 binaries = []
@@ -130,7 +130,7 @@ if sys.platform == 'darwin':
             'CFBundleName': 'ChatFLOW',
             'CFBundleDisplayName': 'ChatFLOW 建站系统',
             'CFBundleIdentifier': 'com.chatflow.studio',
-            'CFBundleShortVersionString': '2.1.5',
+            'CFBundleShortVersionString': '2.1.6',
             'CFBundleIconFile': 'icon.icns',
             'NSHighResolutionCapable': True,
         },

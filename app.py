@@ -86,7 +86,7 @@ from runtime_paths import BUNDLE_DIR, DATA_DIR, ensure_data_dirs
 import license_client
 
 # 当前客户端版本号（与 chatflow.spec 的 CFBundleShortVersionString 保持一致）
-APP_VERSION = '2.1.5'
+APP_VERSION = '2.1.6'
 
 # 源码运行=源码目录；打包运行=可写数据目录（上传图片/生成站点随数据目录走）
 BASE_DIR = DATA_DIR
@@ -3368,6 +3368,9 @@ def deploy():
 
     try:
         print('[deploy] repo=%r user=%r domain=%r' % (repo, user, domain), flush=True)
+        preflight = run_git(OUTPUT_DIR, '--version')
+        if preflight.returncode:
+            raise RuntimeError('发布组件无法启动，请重新安装完整的 ChatFLOW 修复包。')
         repo_ok, repo_msg, repo_fatal = ensure_github_repo(user, token, repo)
         if not repo_ok and repo_fatal:
             hint = ''
@@ -3377,12 +3380,6 @@ def deploy():
         # 非致命（网络抖动探测不到仓库）：仍继续，交给 git push 上传
         if not repo_ok:
             print('[deploy] 仓库探测未确认（%s），继续尝试 git push' % repo_msg, flush=True)
-        # 用 git 自身探测远端 main 是否存在（git 传输比 API 抗代理）：
-        # 存在=覆盖更新；不存在=首次创建。不依赖 GitHub API 是否可达。
-        probe = run_git(OUTPUT_DIR, 'ls-remote', '--heads', 'origin', 'main', auth_token=token)
-        overwrite = bool(probe.stdout.strip())
-        print('[deploy] ensure repo: %s (git ls-remote overwrite=%s)' % (repo_msg, overwrite), flush=True)
-
         # 自定义域名 → 写 CNAME 文件进仓库，GitHub Pages 会自动按它绑定域名；
         # 没填域名 → 清掉历史 CNAME，回退到默认的 *.github.io 地址
         if domain:
@@ -3400,6 +3397,8 @@ def deploy():
         run_git(OUTPUT_DIR, 'remote', 'remove', 'origin')
         git('remote', 'add', 'origin', remote)
         git('branch', '-M', 'main')
+        probe = git('ls-remote', '--heads', 'origin', 'main')
+        overwrite = bool(probe.stdout.strip())
         # Keep the prior commit history. Refuse remote races instead of force-pushing.
         if overwrite:
             git('fetch', '--depth=1', 'origin', 'main')
@@ -3563,6 +3562,16 @@ register_growth_routes(app, login_required)
 
 if __name__ == '__main__':
     _login_window_check = None
+    if '--self-test-deploy' in sys.argv:
+        from pathlib import Path
+        import native_deploy_check
+        try:
+            report = native_deploy_check.run(sys.modules[__name__])
+        except Exception as exc:
+            report = {'ok': False, 'error': str(exc), 'traceback': traceback.format_exc()}
+        Path(DATA_DIR, 'self-test-deploy.json').write_text(json.dumps(report), encoding='utf-8')
+        sys.exit(0 if report['ok'] else 1)
+
     if '--self-test-login-window' in sys.argv:
         from native_login_check import configure
         _login_window_check = configure(app, license_client, globals())

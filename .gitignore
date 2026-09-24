@@ -16,3 +16,5 @@ __pycache__/
 .DS_Store
 
 # 保留 instance/license_server.txt（软件授权服务器地址，客户版需要）
+
+PortableGit/
