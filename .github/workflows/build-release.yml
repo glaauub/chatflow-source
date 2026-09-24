@@ -1,10 +1,16 @@
 name: Windows repair 2.1.6
 on:
   workflow_dispatch:
+    inputs:
+      verify_run:
+        description: Existing build run to verify installation and customer data
+        required: false
+        default: ''
 permissions:
   contents: read
 jobs:
   windows:
+    if: ${{ inputs.verify_run == '' }}
     runs-on: windows-2022
     timeout-minutes: 50
     env:
@@ -75,3 +81,35 @@ jobs:
             dist/*Setup.exe
             dist/SHA256SUMS.txt
           if-no-files-found: error
+
+  verify-upgrade:
+    if: ${{ inputs.verify_run != '' }}
+    runs-on: windows-2022
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      actions: read
+    env:
+      PYTHONUTF8: '1'
+      PYTHONIOENCODING: utf-8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r requirements.txt
+      - uses: actions/download-artifact@v4
+        with:
+          name: ChatFLOW-Windows-x64-v2.1.6
+          run-id: ${{ inputs.verify_run }}
+          github-token: ${{ github.token }}
+          path: dist
+      - name: Verify upgrade preserves customer data
+        shell: pwsh
+        run: |
+          python scripts/smoke_install.py 2>&1 | Tee-Object -FilePath upgrade-verification.txt
+          if ($LASTEXITCODE -ne 0) { throw 'Upgrade preservation failed' }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Windows-upgrade-verification
+          path: upgrade-verification.txt
