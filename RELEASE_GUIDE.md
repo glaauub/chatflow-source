@@ -1,4 +1,4 @@
-# 伟大作品™️工作室 ChatFLOW 2.1.5 使用说明
+# 伟大作品™️工作室 ChatFLOW 2.1.8 使用说明
 
 ## 登录一次，以后直接打开
 
@@ -6,7 +6,7 @@
 
 登录信息由软件加密保存在本机数据目录，Token 不会在后台显示，也不会随产品备份和网站导出。窗口缓存清空后，从主程序重新打开仍可恢复保存的账号。Token 过期、主动清除登录资料或换电脑后需要重新登录。首次升级可能需要再填一次，之后使用新记住功能。
 
-Windows 完整解压后运行 ChatFLOW.exe；Mac 从“应用程序”打开 ChatFLOW。command / bat 是备用入口，不是每次开机都要运行的步骤。Intel 如果残留旧版强制浏览器设置，可运行“Intel-恢复独立窗口.command”一次解除，之后直接打开主程序。
+Windows 关闭旧版后运行 v2.1.8 Setup.exe 覆盖安装；Mac 打开对应芯片的 dmg，把 ChatFLOW 拖进“应用程序”，以后直接打开 ChatFLOW 主程序。Intel 如果残留旧版强制浏览器设置，可运行“Intel-恢复独立窗口.command”一次解除，之后直接打开主程序。
 
 ## 先说清楚有没有效果
 
@@ -15,9 +15,9 @@ Windows 完整解压后运行 ChatFLOW.exe；Mac 从“应用程序”打开 Cha
 ## 安装和升级
 
 Windows 用 Windows-x64 包；Intel Mac 用 Intel 包；M 芯片 Mac 用 AppleSilicon 包。
-先在旧版“数据备份”里下载完整备份，再安装新版。Mac 把 ChatFLOW 拖进“应用程序”，Windows 解压后打开 ChatFLOW.exe。升级沿用本机原数据目录。首次系统拦截请按系统提示处理；本版未做苹果开发者公证或 Windows 商业签名。
+先在旧版“数据备份”里下载完整备份，再安装新版。Mac 把 ChatFLOW 拖进“应用程序”，Windows 运行安装程序覆盖安装。升级沿用本机原数据目录。首次系统拦截请按系统提示处理；本版未做苹果开发者公证或 Windows 商业签名。
 
-原生窗口打不开时，使用同目录的 ChatFLOW-browser.command / ChatFLOW-browser.bat。启动器不会关闭正在运行的其他实例。
+如果 Mac 独立窗口打不开，先正常退出程序后重开一次；Intel 旧版曾开启强制浏览器模式的，可在 dmg 内运行“Intel-恢复独立窗口.command”一次。仍有问题时保留报错和日志给客服排查。
 
 ## 怎么用 SEO 和 AI GEO
 

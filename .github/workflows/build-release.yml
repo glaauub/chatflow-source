@@ -121,6 +121,10 @@ jobs:
           cp -R dist/ChatFLOW.app dist/mac-installer/
           ln -s /Applications dist/mac-installer/Applications
           cp RELEASE_GUIDE.md dist/mac-installer/使用说明.md
+          if [ "${{ matrix.label }}" = Intel ]; then
+            cp packaging/Intel-恢复独立窗口.command dist/mac-installer/
+            chmod +x dist/mac-installer/Intel-恢复独立窗口.command
+          fi
           hdiutil create -volname "ChatFLOW 2.1.8 ${{ matrix.label }}" -srcfolder dist/mac-installer -format UDZO -ov "dist/ChatFLOW-macOS-${{ matrix.label }}-v2.1.8.dmg"
           hdiutil verify "dist/ChatFLOW-macOS-${{ matrix.label }}-v2.1.8.dmg"
           mkdir -p dist/mounted
