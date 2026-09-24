@@ -51,25 +51,8 @@ jobs:
           Copy-Item RELEASE_GUIDE.md dist/ChatFLOW/
           & 'C:/Program Files (x86)/Inno Setup 6/ISCC.exe' packaging/windows.iss
           if ($LASTEXITCODE -ne 0) { throw 'Installer build failed' }
-      - name: Install twice and verify installed application
-        shell: pwsh
-        run: |
-          $target = "$env:RUNNER_TEMP/ChatFLOW Installed"
-          1..2 | ForEach-Object {
-            $process = Start-Process dist/ChatFLOW-Windows-x64-v2.1.6-Setup.exe -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART',"/DIR=`"$target`"" -Wait -PassThru
-            if ($process.ExitCode -ne 0) { throw "Installer failed: $($process.ExitCode)" }
-          }
-          $env:CF_DATA_DIR = "$env:RUNNER_TEMP/ChatFLOW Upgrade Data"
-          New-Item -ItemType Directory -Force $env:CF_DATA_DIR | Out-Null
-          $env:PATH = "$env:SystemRoot/System32"
-          $process = Start-Process "$target/ChatFLOW.exe" -ArgumentList '--self-test-deploy' -Wait -PassThru
-          $report = Get-Content "$env:CF_DATA_DIR/self-test-deploy.json" -Raw | ConvertFrom-Json
-          if ($process.ExitCode -ne 0 -or !$report.ok) { throw ($report | ConvertTo-Json) }
-      - name: Verify remembered login in installed application
-        shell: pwsh
-        run: |
-          $env:CF_TEST_BINARY = "$env:RUNNER_TEMP/ChatFLOW Installed/ChatFLOW.exe"
-          python scripts/smoke_login.py
+      - name: Verify installation preserves customer profile
+        run: python scripts/smoke_install.py
       - name: Checksums
         shell: pwsh
         run: |

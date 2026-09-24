@@ -35,7 +35,7 @@ class DeploymentTests(unittest.TestCase):
                  patch.object(server, 'run_git', side_effect=local_git):
                 for number in (1, 2):
                     if (output / '.git').exists():
-                        shutil.rmtree(output / '.git')
+                        (output / '.git').rename(Path(folder, 'previous.git'))
                     (output / 'index.html').write_text('Product revision %d' % number, encoding='utf-8')
                     (output / 'chatflow-build.json').write_text(json.dumps({'build_id': str(number)}), encoding='utf-8')
                     response = client.post('/api/deploy', json={'repo': 'test-site'})

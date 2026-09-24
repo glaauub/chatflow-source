@@ -35,7 +35,7 @@ def run(server):
             with client.session_transaction() as session:
                 session['github_user'] = 'test-account'; session['github_token'] = 'test-only'
             for revision in (1, 2):
-                if (output / '.git').exists(): shutil.rmtree(output / '.git')
+                if (output / '.git').exists(): (output / '.git').rename(Path(folder, 'previous.git'))
                 (output / 'index.html').write_text('Product revision %d' % revision, encoding='utf-8')
                 (output / '产品.txt').write_text('商品图片与描述', encoding='utf-8')
                 (output / 'chatflow-build.json').write_text(json.dumps({'build_id': str(revision)}), encoding='utf-8')
