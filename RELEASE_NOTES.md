@@ -1,4 +1,8 @@
-# ChatFLOW Windows 2.1.8 修复版
+# ChatFLOW 2.1.8 三平台版
+
+- 同一版本提供 Windows x64、Intel Mac 和 Apple Silicon Mac 安装包；各平台分别验证独立窗口、保存登录和本地 AI。
+- Mac 安装后直接打开主程序。Intel 旧版如果遗留强制浏览器设置，安装镜像内有只需运行一次的恢复脚本。
+- 用户资料和已下载模型保存在安装包外；覆盖安装不会主动删除。未在客户电脑上完成关机重启实测。
 
 - 修复部分电脑登录时报 curl 不认识 `--retry-all-errors`，自动适配旧版 curl。
 - curl 不可用时使用系统 HTTPS 回退路径校验 GitHub 账号。
