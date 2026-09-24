@@ -27,6 +27,7 @@ def configure(app, license_client, namespace):
         requests.append({'method': request.method, 'path': request.path,
                          'status': response.status_code,
                          'redirect': response.headers.get('Location', '').split('?')[0]})
+        (root/'login-requests.json').write_text(json.dumps(requests[-50:]),encoding='utf-8')
         return response
     def check(window):
         report = {'ok':False,'phase':phase}
@@ -43,6 +44,8 @@ def configure(app, license_client, namespace):
                 # WebView2 can discard the pending evaluate_js response.
                 window.run_js("document.querySelector('[name=username]').value='gui-fixture'; document.querySelector('[name=token]').value='gui-fixture-not-a-real-token'; document.querySelector('[name=remember]').checked=" + ('true' if phase=='write' else 'false') + "; setTimeout(()=>document.querySelector('form').requestSubmit(),100); null;")
             elif phase == 'logout':
+                # Let the initial dashboard requests settle before navigating away.
+                time.sleep(3)
                 assert window.get_current_url().endswith('/admin'), window.get_current_url()
                 window.run_js("setTimeout(()=>document.querySelector('form[action=\"/logout\"]').requestSubmit(),100); null;")
             stage('navigation submitted')

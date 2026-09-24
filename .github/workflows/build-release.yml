@@ -53,6 +53,12 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Installer build failed' }
       - name: Verify installation preserves customer profile
         run: python scripts/smoke_install.py
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: Windows-diagnostics
+          path: dist/login-diagnostic-*.png
+          if-no-files-found: ignore
       - name: Checksums
         shell: pwsh
         run: |
