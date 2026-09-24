@@ -130,7 +130,7 @@ if sys.platform == 'darwin':
             'CFBundleName': 'ChatFLOW',
             'CFBundleDisplayName': 'ChatFLOW 建站系统',
             'CFBundleIdentifier': 'com.chatflow.studio',
-            'CFBundleShortVersionString': '2.1.6',
+            'CFBundleShortVersionString': '2.1.7',
             'CFBundleIconFile': 'icon.icns',
             'NSHighResolutionCapable': True,
         },

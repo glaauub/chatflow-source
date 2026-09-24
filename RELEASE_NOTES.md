@@ -1,3 +1,9 @@
+# ChatFLOW Windows 2.1.7 修复版
+
+- 切换 GitHub 仓库时，自动更新 SEO 的正式网址、生成页的 canonical 和 sitemap、部署结果链接。
+- 手动填写的独立域名继续保留。
+- 延续 Windows 2.1.6 的内置 Git 发布、重复发布、登录、AI 和安装更新修复。
+
 # ChatFLOW Windows 2.1.6 修复版
 
 - 安装包自带完整 Git 发布组件，缺组件时禁止打包。

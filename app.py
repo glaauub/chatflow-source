@@ -86,7 +86,7 @@ from runtime_paths import BUNDLE_DIR, DATA_DIR, ensure_data_dirs
 import license_client
 
 # 当前客户端版本号（与 chatflow.spec 的 CFBundleShortVersionString 保持一致）
-APP_VERSION = '2.1.6'
+APP_VERSION = '2.1.7'
 
 # 源码运行=源码目录；打包运行=可写数据目录（上传图片/生成站点随数据目录走）
 BASE_DIR = DATA_DIR
@@ -3047,8 +3047,13 @@ def generate():
     if repo:
         if not re.fullmatch(r'[A-Za-z0-9_.-]+', repo):
             return jsonify({'error': '仓库名格式不正确'}), 400
-        if not get_config('site_url', ''):
-            user = session.get('github_user', '')
+        user = session.get('github_user', '')
+        current_url = (get_config('site_url', '') or '').strip()
+        from urllib.parse import urlsplit
+        current_host = (urlsplit(current_url).hostname or '').lower()
+        # A GitHub Pages address follows the selected repository. Preserve a
+        # separately configured custom domain instead of replacing it.
+        if not current_url or current_host == (user + '.github.io').lower():
             set_config('site_url', 'https://%s.github.io%s' % (user, '' if repo.lower() == (user + '.github.io').lower() else '/' + repo))
     set_config('site_name', site_name)
     try:

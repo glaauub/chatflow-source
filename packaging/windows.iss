@@ -1,12 +1,12 @@
 [Setup]
 AppId=ChatFLOW.Studio.Windows
 AppName=ChatFLOW 建站系统
-AppVersion=2.1.6
+AppVersion=2.1.7
 DefaultDirName={localappdata}\Programs\ChatFLOW
 DefaultGroupName=ChatFLOW
 PrivilegesRequired=lowest
 OutputDir=..\dist
-OutputBaseFilename=ChatFLOW-Windows-x64-v2.1.6-Setup
+OutputBaseFilename=ChatFLOW-Windows-x64-v2.1.7-Setup
 Compression=lzma2/fast
 SolidCompression=yes
 ArchitecturesAllowed=x64compatible

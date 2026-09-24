@@ -46,3 +46,37 @@ class DeploymentTests(unittest.TestCase):
             self.assertEqual(result.stdout.strip(), '2')
             result = subprocess.run(['git', '--git-dir=' + str(remote), 'show', 'main:index.html'], capture_output=True, text=True, check=True)
             self.assertEqual(result.stdout, 'Product revision 2')
+
+    def test_switching_repositories_updates_generated_site_address(self):
+        from models import get_config, set_config
+        import site_builder as builder
+        client = server.app.test_client()
+        with client.session_transaction() as session:
+            session['github_user'] = 'test-account'
+            session['github_token'] = 'test-only'
+        with tempfile.TemporaryDirectory() as folder, \
+             patch.object(server.license_client, 'check_license', return_value=(True, 'ok')), \
+             patch.object(builder, 'OUTPUT_DIR', folder):
+            set_config('site_url', '')
+            for repo in ('first-shop', 'second-shop'):
+                response = client.post('/api/generate', json={'site_name': 'Store', 'repo': repo})
+                self.assertEqual(response.status_code, 200, response.json)
+                expected = 'https://test-account.github.io/' + repo
+                self.assertEqual(get_config('site_url'), expected)
+                self.assertIn(expected + '/', Path(folder, 'sitemap.xml').read_text(encoding='utf-8'))
+            self.assertNotIn('first-shop', Path(folder, 'sitemap.xml').read_text(encoding='utf-8'))
+
+    def test_switching_repositories_keeps_custom_domain(self):
+        from models import get_config, set_config
+        import site_builder as builder
+        client = server.app.test_client()
+        with client.session_transaction() as session:
+            session['github_user'] = 'test-account'
+            session['github_token'] = 'test-only'
+        with tempfile.TemporaryDirectory() as folder, \
+             patch.object(server.license_client, 'check_license', return_value=(True, 'ok')), \
+             patch.object(builder, 'OUTPUT_DIR', folder):
+            set_config('site_url', 'https://shop.example.com')
+            response = client.post('/api/generate', json={'site_name': 'Store', 'repo': 'second-shop'})
+            self.assertEqual(response.status_code, 200, response.json)
+            self.assertEqual(get_config('site_url'), 'https://shop.example.com')
